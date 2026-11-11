@@ -13,24 +13,20 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
   <style>
     :root {
-      --bg-main: #0f111a;
-      --bg-sidebar: #161926;
-      --bg-card: #1c2030;
-      --bg-card-hover: #23283c;
-      --bg-input: #121521;
-      --border-color: #2b3148;
-      --text-primary: #f1f5f9;
-      --text-secondary: #94a3b8;
-      --accent: #6366f1;
-      --accent-hover: #4f46e5;
-      --accent-soft: rgba(99, 102, 241, 0.15);
-      --success: #10b981;
-      --success-soft: rgba(16, 185, 129, 0.16);
-      --danger: #ef4444;
-      --danger-soft: rgba(239, 68, 68, 0.16);
-      --radius-lg: 16px;
-      --radius-md: 12px;
-      --radius-sm: 8px;
+      --bg-main: #000000;
+      --bg-sidebar: #080808;
+      --bg-card: #0f0f0f;
+      --bg-card-hover: #1a1a1a;
+      --bg-input: #050505;
+      --border-color: #2a2a2a;
+      --border-strong: #ffffff;
+      --text-primary: #ffffff;
+      --text-secondary: #9e9e9e;
+      --accent: #ffffff;
+      --accent-hover: #e0e0e0;
+      --radius-lg: 12px;
+      --radius-md: 8px;
+      --radius-sm: 6px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -39,11 +35,11 @@
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background-color: var(--bg-main);
       color: var(--text-primary);
-      line-height: 1.5;
+      line-height: 1.55;
       min-height: 100vh;
     }
 
-    .app-shell { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+    .app-shell { display: grid; grid-template-columns: 270px 1fr; min-height: 100vh; }
 
     .sidebar {
       background-color: var(--bg-sidebar);
@@ -57,14 +53,14 @@
       height: 100vh;
     }
 
-    .brand { display: flex; align-items: center; gap: 12px; padding: 0 8px; }
+    .brand { display: flex; align-items: center; gap: 12px; padding: 0 6px; }
     .brand-logo {
-      width: 44px; height: 44px; border-radius: 12px;
-      background: linear-gradient(135deg, #6366f1, #a855f7);
+      width: 42px; height: 42px; border-radius: 8px;
+      background: #ffffff; color: #000000;
       display: flex; align-items: center; justify-content: center;
-      font-size: 24px; box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+      font-size: 22px; font-weight: 900;
     }
-    .brand h1 { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+    .brand h1 { font-size: 20px; font-weight: 800; letter-spacing: -0.03em; color: #ffffff; }
     .brand-sub { font-size: 12px; color: var(--text-secondary); }
 
     .nav-menu { display: flex; flex-direction: column; gap: 6px; }
@@ -73,19 +69,16 @@
       padding: 12px 14px; border-radius: var(--radius-md);
       border: 1px solid transparent; background: transparent;
       color: var(--text-secondary); font-size: 14px; font-weight: 600;
-      cursor: pointer; transition: all 0.2s ease; text-align: left;
+      cursor: pointer; transition: all 0.15s ease; text-align: left;
     }
-    .nav-btn:hover { background: var(--bg-card); color: var(--text-primary); }
-    .nav-btn.active {
-      background: var(--accent-soft); color: #818cf8;
-      border-color: rgba(99, 102, 241, 0.35);
-    }
-    .nav-icon { font-size: 18px; }
+    .nav-btn:hover { background: var(--bg-card); color: var(--text-primary); border-color: var(--border-color); }
+    .nav-btn.active { background: #ffffff; color: #000000; border-color: #ffffff; }
+    .nav-icon { font-size: 16px; filter: grayscale(100%); }
     .badge {
-      margin-left: auto; background: var(--accent); color: #fff;
-      font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 700;
+      margin-left: auto; background: #000000; color: #ffffff;
+      border: 1px solid #444; font-size: 11px; padding: 2px 8px;
+      border-radius: 999px; font-weight: 700;
     }
-    .badge-danger { background: var(--danger); }
 
     .sidebar-stats {
       margin-top: auto; background: var(--bg-card);
@@ -93,13 +86,13 @@
       border-radius: var(--radius-md); padding: 14px;
     }
     .sidebar-stats h3 {
-      font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em;
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
       color: var(--text-secondary); margin-bottom: 10px;
     }
     .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
     .stat-card {
-      background: var(--bg-input); padding: 8px 6px;
-      border-radius: var(--radius-sm); text-align: center;
+      background: var(--bg-input); border: 1px solid var(--border-color);
+      padding: 8px 6px; border-radius: var(--radius-sm); text-align: center;
     }
     .stat-val { display: block; font-size: 15px; font-weight: 800; color: var(--text-primary); }
     .stat-lbl { font-size: 11px; color: var(--text-secondary); }
@@ -109,38 +102,33 @@
       width: 100%; padding: 10px 12px; border-radius: var(--radius-sm);
       border: 1px solid var(--border-color); background: var(--bg-card);
       color: var(--text-primary); font-size: 13px; font-weight: 600;
-      cursor: pointer; transition: background 0.2s;
+      cursor: pointer; transition: all 0.15s;
     }
-    .btn-settings:hover { background: var(--bg-card-hover); }
+    .btn-settings:hover { background: #ffffff; color: #000000; }
     .engine-indicator {
       font-size: 12px; color: var(--text-secondary);
       display: flex; align-items: center; gap: 8px; padding: 0 4px;
     }
-    .dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--success); box-shadow: 0 0 8px var(--success);
-    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #ffffff; }
 
     .main-content { padding: 32px 40px; max-width: 1320px; width: 100%; margin: 0 auto; }
-    .tab-panel { display: none; animation: fadeIn 0.22s ease; }
+    .tab-panel { display: none; animation: fadeIn 0.18s ease; }
     .tab-panel.active { display: block; }
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
+      from { opacity: 0; transform: translateY(4px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
     .panel-header {
-      display: flex; justify-content: space-between;
-      align-items: flex-start; gap: 20px; margin-bottom: 24px;
+      display: flex; justify-content: space-between; align-items: flex-start;
+      gap: 20px; margin-bottom: 24px; padding-bottom: 18px;
+      border-bottom: 1px solid var(--border-color);
     }
-    .panel-header h2 { font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+    .panel-header h2 { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px; }
     .panel-header p { color: var(--text-secondary); font-size: 14.5px; max-width: 680px; }
     .header-btns { display: flex; gap: 10px; }
 
-    .upload-layout {
-      display: grid; grid-template-columns: 1.35fr 0.9fr;
-      gap: 24px; align-items: start;
-    }
+    .upload-layout { display: grid; grid-template-columns: 1.35fr 0.9fr; gap: 24px; align-items: start; }
     .card {
       background: var(--bg-card); border: 1px solid var(--border-color);
       border-radius: var(--radius-lg); padding: 24px;
@@ -150,27 +138,26 @@
       color: var(--text-primary); padding: 12px 16px; border-radius: var(--radius-md);
       font-size: 15px; font-weight: 600; margin-bottom: 16px; outline: none;
     }
-    .title-input:focus { border-color: var(--accent); }
+    .title-input:focus { border-color: #ffffff; }
 
     .dropzone {
-      border: 2px dashed var(--border-color); background: rgba(18, 21, 33, 0.6);
+      border: 1.5px dashed #444444; background: #070707;
       border-radius: var(--radius-md); padding: 22px; text-align: center;
-      cursor: pointer; transition: all 0.2s ease; margin-bottom: 16px;
+      cursor: pointer; transition: all 0.15s ease; margin-bottom: 16px;
     }
-    .dropzone:hover, .dropzone.dragover { border-color: var(--accent); background: var(--accent-soft); }
+    .dropzone:hover, .dropzone.dragover { border-color: #ffffff; background: #141414; }
     .dropzone-content { display: flex; align-items: center; justify-content: center; gap: 16px; text-align: left; }
-    .drop-icon { font-size: 32px; }
+    .drop-icon { font-size: 28px; filter: grayscale(100%); }
     .dropzone-content p { font-size: 12.5px; color: var(--text-secondary); margin-top: 2px; }
-    .dropzone-content p span { color: #a5b4fc; font-weight: 600; }
+    .dropzone-content p span { color: #ffffff; font-weight: 600; text-decoration: underline; }
 
     .file-loading {
       display: flex; align-items: center; justify-content: center;
-      gap: 12px; padding: 8px; color: #a5b4fc; font-weight: 600;
+      gap: 12px; padding: 8px; color: #ffffff; font-weight: 600;
     }
     .spinner {
-      width: 20px; height: 20px; border: 3px solid rgba(99, 102, 241, 0.3);
-      border-top-color: var(--accent); border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      width: 18px; height: 18px; border: 2px solid #444; border-top-color: #fff;
+      border-radius: 50%; animation: spin 0.8s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -179,21 +166,21 @@
       margin-bottom: 8px; font-size: 13px; color: var(--text-secondary); font-weight: 600;
     }
     .toolbar-right { display: flex; align-items: center; gap: 12px; }
-    .btn-text { background: none; border: none; color: #f87171; cursor: pointer; font-size: 12.5px; font-weight: 600; }
+    .btn-text { background: none; border: none; color: #ffffff; text-decoration: underline; cursor: pointer; font-size: 12.5px; font-weight: 600; }
     #noteContentInput {
       width: 100%; min-height: 330px; background: var(--bg-input);
       border: 1px solid var(--border-color); border-radius: var(--radius-md);
       padding: 16px; color: var(--text-primary); font-family: inherit;
       font-size: 14.5px; line-height: 1.65; resize: vertical; outline: none;
     }
-    #noteContentInput:focus { border-color: var(--accent); }
+    #noteContentInput:focus { border-color: #ffffff; }
 
     .quiz-config-card h3 { font-size: 18px; margin-bottom: 18px; }
     .form-group { margin-bottom: 20px; }
     .form-group > label {
-      display: block; font-size: 13px; font-weight: 700;
+      display: block; font-size: 12px; font-weight: 700;
       color: var(--text-secondary); text-transform: uppercase;
-      letter-spacing: 0.04em; margin-bottom: 10px;
+      letter-spacing: 0.06em; margin-bottom: 10px;
     }
     .pill-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
     .pill {
@@ -201,7 +188,7 @@
       background: var(--bg-input); color: var(--text-secondary);
       font-weight: 600; font-size: 13.5px; cursor: pointer; transition: all 0.15s;
     }
-    .pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .pill.active { background: #ffffff; color: #000000; border-color: #ffffff; font-weight: 800; }
 
     .checkbox-list { display: flex; flex-direction: column; gap: 10px; }
     .checkbox-item {
@@ -210,87 +197,84 @@
       border: 1px solid var(--border-color); cursor: pointer;
       font-size: 14px; font-weight: 500;
     }
-    .checkbox-item input { accent-color: var(--accent); width: 16px; height: 16px; }
+    .checkbox-item input { accent-color: #ffffff; width: 16px; height: 16px; }
 
     .engine-box { display: flex; flex-direction: column; gap: 10px; }
     .radio-card {
       display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px;
       border-radius: var(--radius-md); border: 1px solid var(--border-color);
-      background: var(--bg-input); cursor: pointer; transition: all 0.2s;
+      background: var(--bg-input); cursor: pointer; transition: all 0.15s;
     }
-    .radio-card.active { border-color: var(--accent); background: var(--accent-soft); }
-    .radio-card input { margin-top: 4px; accent-color: var(--accent); }
+    .radio-card.active { border-color: #ffffff; background: #161616; }
+    .radio-card input { margin-top: 4px; accent-color: #ffffff; }
     .radio-card strong { display: block; font-size: 13.5px; margin-bottom: 3px; }
     .radio-card p { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
 
     .btn {
       display: inline-flex; align-items: center; justify-content: center;
       gap: 8px; padding: 11px 18px; border-radius: var(--radius-md);
-      font-size: 14px; font-weight: 600; border: 1px solid transparent;
-      cursor: pointer; transition: all 0.2s ease;
+      font-size: 14px; font-weight: 700; border: 1px solid transparent;
+      cursor: pointer; transition: all 0.15s ease;
     }
-    .btn-primary {
-      background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff;
-      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
-    }
-    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5); }
-    .btn-secondary { background: var(--bg-input); border-color: var(--border-color); color: var(--text-primary); }
-    .btn-secondary:hover { background: var(--bg-card-hover); }
-    .btn-success { background: var(--success); color: #fff; }
-    .btn-danger { background: var(--danger); color: #fff; }
-    .btn-large { width: 100%; padding: 15px; font-size: 15.5px; font-weight: 700; }
+    .btn-primary { background: #ffffff; color: #000000; border-color: #ffffff; }
+    .btn-primary:hover { background: #dcdcdc; }
+    .btn-secondary { background: #0a0a0a; border-color: #333333; color: #ffffff; }
+    .btn-secondary:hover { border-color: #ffffff; background: #181818; }
+    .btn-success { background: #ffffff; color: #000000; }
+    .btn-danger { background: #1f1f1f; color: #ffffff; border: 1px solid #555555; }
+    .btn-large { width: 100%; padding: 15px; font-size: 15px; font-weight: 800; }
 
     .quiz-container { max-width: 820px; margin: 0 auto; }
     .quiz-topbar { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 14px; }
     .quiz-topic-badge {
-      display: inline-block; font-size: 12px; font-weight: 700; color: #a5b4fc;
-      background: var(--accent-soft); padding: 4px 10px; border-radius: 999px; margin-bottom: 6px;
+      display: inline-block; font-size: 11.5px; font-weight: 700; color: #000000;
+      background: #ffffff; padding: 3px 10px; border-radius: 4px; margin-bottom: 6px; text-transform: uppercase;
     }
     .quiz-score-Display { display: flex; gap: 10px; }
-    .score-pill { padding: 6px 14px; border-radius: 999px; font-size: 14px; font-weight: 600; }
-    .correct-pill { background: var(--success-soft); color: #34d399; }
-    .wrong-pill { background: var(--danger-soft); color: #f87171; }
+    .score-pill {
+      padding: 6px 14px; border-radius: 6px; font-size: 13.5px; font-weight: 700;
+      border: 1px solid var(--border-color); background: var(--bg-card);
+    }
+    .correct-pill { color: #ffffff; border-color: #ffffff; }
+    .wrong-pill { color: #888888; }
 
     .progress-bar-track {
-      width: 100%; height: 8px; background: var(--bg-card);
+      width: 100%; height: 6px; background: #1a1a1a;
       border-radius: 999px; overflow: hidden; margin-bottom: 24px;
     }
-    .progress-bar-fill {
-      height: 100%; background: linear-gradient(90deg, #6366f1, #a855f7);
-      transition: width 0.3s ease;
-    }
+    .progress-bar-fill { height: 100%; background: #ffffff; transition: width 0.25s ease; }
     .question-card { padding: 32px; }
     .q-type-tag {
-      font-size: 12px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.05em; color: #cbd5e1; background: var(--bg-input);
-      border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 6px;
+      font-size: 11.5px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: #ffffff; background: #000000;
+      border: 1px solid #444444; padding: 4px 10px; border-radius: 4px;
     }
-    .question-Prompt { font-size: 20px; font-weight: 700; margin: 18px 0 24px; line-height: 1.5; }
+    .question-Prompt { font-size: 19px; font-weight: 700; margin: 18px 0 24px; line-height: 1.55; white-space: pre-line; }
     .options-grid { display: flex; flex-direction: column; gap: 12px; }
     .option-btn {
       display: flex; align-items: center; gap: 14px; width: 100%; text-align: left;
-      padding: 16px 18px; border-radius: var(--radius-md); background: var(--bg-input);
-      border: 1.5px solid var(--border-color); color: var(--text-primary);
-      font-size: 15.5px; font-weight: 500; cursor: pointer; transition: all 0.16s ease;
+      padding: 16px 18px; border-radius: var(--radius-md); background: #070707;
+      border: 1px solid #2e2e2e; color: var(--text-primary);
+      font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.14s ease;
     }
-    .option-btn:hover:not(:disabled) { border-color: var(--accent); background: var(--bg-card-hover); }
+    .option-btn:hover:not(:disabled) { border-color: #ffffff; background: #161616; }
     .option-letter {
-      width: 32px; height: 32px; border-radius: 8px; background: var(--bg-card);
-      border: 1px solid var(--border-color); display: flex; align-items: center;
-      justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0;
+      width: 32px; height: 32px; border-radius: 6px; background: #141414;
+      border: 1px solid #3a3a3a; display: flex; align-items: center;
+      justify-content: center; font-weight: 800; font-size: 13.5px; flex-shrink: 0;
     }
-    .option-btn.correct { border-color: var(--success); background: var(--success-soft); }
-    .option-btn.correct .option-letter { background: var(--success); color: #fff; border-color: var(--success); }
-    .option-btn.wrong { border-color: var(--danger); background: var(--danger-soft); }
-    .option-btn.wrong .option-letter { background: var(--danger); color: #fff; border-color: var(--danger); }
+    .option-btn.correct { border: 2px solid #ffffff; background: #1f1f1f; font-weight: 700; }
+    .option-btn.correct .option-letter { background: #ffffff; color: #000000; border-color: #ffffff; }
+    .option-btn.wrong { border: 1px dashed #666666; background: #0a0a0a; color: #777777; text-decoration: line-through; }
+    .option-btn.wrong .option-letter { background: #222222; color: #777777; border-color: #444444; }
 
     .text-answer-box { display: flex; flex-direction: column; gap: 12px; }
     .text-answer-box input {
       width: 100%; padding: 16px; border-radius: var(--radius-md);
-      border: 1.5px solid var(--border-color); background: var(--bg-input);
+      border: 1px solid #3a3a3a; background: var(--bg-input);
       color: var(--text-primary); font-size: 16px; outline: none;
     }
-    .text-answer-box input:focus { border-color: var(--accent); }
+    .text-answer-box input:focus { border-color: #ffffff; }
     .text-answer-actions { display: flex; gap: 10px; }
 
     .classic-eval-box {
@@ -302,29 +286,23 @@
 
     .feedback-box {
       margin-top: 22px; padding: 18px; border-radius: var(--radius-md);
-      border-left: 4px solid var(--accent); background: var(--bg-input);
+      border-left: 4px solid #ffffff; background: #080808;
+      border-top: 1px solid #262626; border-right: 1px solid #262626; border-bottom: 1px solid #262626;
     }
-    .feedback-box.is-correct { border-left-color: var(--success); background: rgba(16, 185, 129, 0.08); }
-    .feedback-box.is-wrong { border-left-color: var(--danger); background: rgba(239, 68, 68, 0.08); }
+    .feedback-box.is-wrong { border-left-color: #666666; }
     .feedback-header { font-weight: 800; font-size: 15px; margin-bottom: 6px; }
-    .feedback-explanation { font-size: 14.5px; color: var(--text-primary); margin-bottom: 8px; }
-    .feedback-source {
-      font-size: 13px; color: var(--text-secondary); font-style: italic;
-      border-top: 1px solid var(--border-color); padding-top: 8px;
-    }
+    .feedback-explanation { font-size: 14.5px; color: #e5e5e5; margin-bottom: 8px; }
+    .feedback-source { font-size: 12.5px; color: var(--text-secondary); border-top: 1px solid var(--border-color); padding-top: 8px; }
     .question-footer {
       display: flex; justify-content: space-between; margin-top: 28px;
       padding-top: 20px; border-top: 1px solid var(--border-color);
     }
 
     .quiz-result-card { max-width: 640px; margin: 20px auto; text-align: center; padding: 40px 32px; }
-    .result-trophy { font-size: 64px; margin-bottom: 12px; }
+    .result-trophy { font-size: 56px; margin-bottom: 12px; filter: grayscale(100%); }
     .result-stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 28px 0; }
-    .res-box {
-      background: var(--bg-input); border: 1px solid var(--border-color);
-      padding: 18px; border-radius: var(--radius-md);
-    }
-    .res-num { display: block; font-size: 28px; font-weight: 800; color: #a5b4fc; }
+    .res-box { background: var(--bg-input); border: 1px solid var(--border-color); padding: 18px; border-radius: var(--radius-md); }
+    .res-num { display: block; font-size: 28px; font-weight: 800; color: #ffffff; }
     .res-label { font-size: 13px; color: var(--text-secondary); }
     .result-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
 
@@ -333,25 +311,18 @@
     .flashcard-scene { perspective: 1200px; height: 340px; cursor: pointer; margin-bottom: 24px; }
     .flashcard-inner {
       width: 100%; height: 100%; position: relative;
-      transform-style: preserve-3d; transition: transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1);
+      transform-style: preserve-3d; transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
     }
     .flashcard-inner.is-flipped { transform: rotateY(180deg); }
     .flashcard-face {
       position: absolute; inset: 0; backface-visibility: hidden;
-      border-radius: var(--radius-lg); border: 1.5px solid var(--border-color);
-      background: linear-gradient(160deg, #1e2235, #151826); padding: 36px;
-      display: flex; flex-direction: column; justify-content: center;
-      align-items: center; box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35);
+      border-radius: var(--radius-lg); border: 1.5px solid #333333;
+      background: #0d0d0d; padding: 36px; display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
     }
-    .flashcard-back {
-      transform: rotateY(180deg); border-color: var(--accent);
-      background: linear-gradient(160deg, #232742, #171b2e);
-    }
-    .fc-hint {
-      position: absolute; top: 20px; font-size: 11px;
-      font-weight: 700; letter-spacing: 0.08em; color: var(--text-secondary);
-    }
-    .flashcard-face p { font-size: 22px; font-weight: 700; line-height: 1.5; }
+    .flashcard-back { transform: rotateY(180deg); border-color: #ffffff; background: #141414; }
+    .fc-hint { position: absolute; top: 20px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: var(--text-secondary); }
+    .flashcard-face p { font-size: 21px; font-weight: 700; line-height: 1.5; }
     .flashcard-controls { display: flex; justify-content: center; gap: 14px; }
 
     .mistakes-list, .library-grid { display: grid; gap: 16px; }
@@ -360,31 +331,31 @@
       background: var(--bg-card); border: 1px solid var(--border-color);
       border-radius: var(--radius-md); padding: 20px;
     }
-    .mistake-item h4 { font-size: 16px; margin-bottom: 8px; }
-    .mistake-ans { font-size: 14px; color: #34d399; font-weight: 600; }
+    .mistake-item h4 { font-size: 15.5px; margin-bottom: 8px; white-space: pre-line; }
+    .mistake-ans { font-size: 14px; color: #ffffff; font-weight: 700; }
     .library-card h4 { font-size: 17px; margin-bottom: 6px; }
     .library-meta { font-size: 12.5px; color: var(--text-secondary); margin-bottom: 14px; }
     .library-actions { display: flex; gap: 8px; }
 
     .empty-state {
       text-align: center; padding: 64px 20px; background: var(--bg-card);
-      border: 1px dashed var(--border-color); border-radius: var(--radius-lg);
+      border: 1px dashed #333333; border-radius: var(--radius-lg);
     }
-    .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-icon { font-size: 44px; margin-bottom: 12px; filter: grayscale(100%); }
     .empty-state h3 { font-size: 20px; margin-bottom: 6px; }
     .empty-state p { color: var(--text-secondary); margin-bottom: 20px; }
 
     .modal-backdrop {
-      position: fixed; inset: 0; background: rgba(8, 10, 16, 0.78);
-      backdrop-filter: blur(4px); display: flex; align-items: center;
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(3px); display: flex; align-items: center;
       justify-content: center; z-index: 1000;
     }
     .modal-card {
-      background: var(--bg-card); border: 1px solid var(--border-color);
+      background: #0c0c0c; border: 1px solid #ffffff;
       border-radius: var(--radius-lg); width: 92%; max-width: 500px; padding: 24px;
     }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-    .btn-close { background: none; border: none; color: var(--text-secondary); font-size: 18px; cursor: pointer; }
+    .btn-close { background: none; border: none; color: #ffffff; font-size: 18px; cursor: pointer; }
     .modal-desc { font-size: 13.5px; color: var(--text-secondary); margin-bottom: 18px; }
     .text-input {
       width: 100%; padding: 12px; border-radius: var(--radius-sm);
@@ -392,7 +363,7 @@
       color: var(--text-primary); font-size: 14px;
     }
     .help-text { display: block; margin-top: 6px; font-size: 12px; color: var(--text-secondary); }
-    .help-text a { color: #818cf8; }
+    .help-text a { color: #ffffff; }
     .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
 
     .toast-container {
@@ -400,9 +371,9 @@
       display: flex; flex-direction: column; gap: 10px; z-index: 2000;
     }
     .toast {
-      background: #1e293b; border: 1px solid var(--accent); color: #fff;
+      background: #ffffff; border: 1px solid #000000; color: #000000;
       padding: 12px 18px; border-radius: var(--radius-md); font-size: 14px;
-      font-weight: 600; box-shadow: 0 10px 25px rgba(0,0,0,0.4); animation: fadeIn 0.2s ease;
+      font-weight: 700; box-shadow: 0 10px 28px rgba(0,0,0,0.8); animation: fadeIn 0.2s ease;
     }
     .hidden { display: none !important; }
 
@@ -418,7 +389,7 @@
   <div class="app-shell">
     <aside class="sidebar">
       <div class="brand">
-        <div class="brand-logo">🧠</div>
+        <div class="brand-logo">N</div>
         <div>
           <h1>NotQuiz</h1>
           <span class="brand-sub">Akıllı Ders Çalışma Asistanı</span>
@@ -442,7 +413,7 @@
         <button class="nav-btn" data-tab="mistakes">
           <span class="nav-icon">🔄</span>
           <span>Yanlışlarım</span>
-          <span class="badge badge-danger hidden" id="mistakeCountBadge">0</span>
+          <span class="badge hidden" id="mistakeCountBadge">0</span>
         </button>
         <button class="nav-btn" data-tab="library">
           <span class="nav-icon">📚</span>
@@ -462,7 +433,7 @@
             <span class="stat-lbl">Başarı</span>
           </div>
           <div class="stat-card">
-            <span class="stat-val" id="statStreak">0🔥</span>
+            <span class="stat-val" id="statStreak">0</span>
             <span class="stat-lbl">Seri</span>
           </div>
         </div>
@@ -470,10 +441,10 @@
 
       <div class="sidebar-footer">
         <button class="btn-settings" id="openSettingsBtn">
-          ⚙️ Yapay Zeka (Gemini API) Ayarı
+          ⚙ Yapay Zeka (Gemini API) Ayarı
         </button>
         <div class="engine-indicator" id="engineStatus">
-          <span class="dot online"></span> Yerel Akıllı Motor Aktif
+          <span class="dot online"></span> Akıllı Kavram Motoru Aktif
         </div>
       </div>
     </aside>
@@ -482,10 +453,10 @@
       <section class="tab-panel active" id="tab-upload">
         <header class="panel-header">
           <div>
-            <h2>Notlarını Yükle, Seni Sınav Yapsın 🚀</h2>
-            <p>PDF, Word (.docx), TXT dosyası yükle veya ders notunu yapıştır. Sistem notundaki önemli yerleri analiz edip sana özel sorular çıkarsın.</p>
+            <h2>Notlarını Yükle, Seni Sınav Yapsın</h2>
+            <p>PDF, Word (.docx), TXT dosyası yükle veya ders notunu yapıştır. Kaynakça ve gereksiz kısımlar otomatik elenir, sadece asıl kavramlardan sorular üretilir.</p>
           </div>
-          <button class="btn btn-secondary" id="loadSampleBtn">✨ Örnek Ders Notu Yükle</button>
+          <button class="btn btn-secondary" id="loadSampleBtn">Örnek Ders Notu Yükle</button>
         </header>
 
         <div class="upload-layout">
@@ -522,7 +493,7 @@
           </div>
 
           <div class="card quiz-config-card">
-            <h3>🎯 Sınav Ayarları</h3>
+            <h3>Sınav Ayarları</h3>
 
             <div class="form-group">
               <label>Soru Sayısı</label>
@@ -562,22 +533,22 @@
                 <label class="radio-card active" id="radioLocalCard">
                   <input type="radio" name="engineMode" value="local" checked />
                   <div>
-                    <strong>⚡ Hızlı Akıllı Analiz (Ücretsiz & Çevrimdışı)</strong>
-                    <p>Notundaki tanımları, kavramları, sayıları ve önemli cümleleri analiz ederek anında soru üretir.</p>
+                    <strong>Akıllı Kavram Analizi (Ücretsiz & Çevrimdışı)</strong>
+                    <p>Kaynakça ve dipnotları temizler; nottaki gerçek kavram, görev ve tanımlardan soru üretir.</p>
                   </div>
                 </label>
                 <label class="radio-card" id="radioAiCard">
                   <input type="radio" name="engineMode" value="ai" />
                   <div>
-                    <strong>✨ Gemini Yapay Zeka (Derin Yorum Soruları)</strong>
-                    <p>Google Gemini API anahtarınla nottan öğretmen kalitesinde yorum ve öncüllü sorular üretir.</p>
+                    <strong>Gemini Yapay Zeka (Derin Yorum Soruları)</strong>
+                    <p>Google Gemini API anahtarınla nottan öğretmen kalitesinde yorum soruları üretir.</p>
                   </div>
                 </label>
               </div>
             </div>
 
             <button class="btn btn-primary btn-large" id="generateQuizBtn">
-              🚀 Notlardan Soru Üret ve Başla
+              Notlardan Soru Üret ve Başla →
             </button>
           </div>
         </div>
@@ -598,8 +569,8 @@
               <h3 id="questionProgressText">Soru 1 / 10</h3>
             </div>
             <div class="quiz-score-Display">
-              <span class="score-pill correct-pill">✓ <b id="liveCorrect">0</b></span>
-              <span class="score-pill wrong-pill">✗ <b id="liveWrong">0</b></span>
+              <span class="score-pill correct-pill">Doğru: <b id="liveCorrect">0</b></span>
+              <span class="score-pill wrong-pill">Yanlış: <b id="liveWrong">0</b></span>
             </div>
           </div>
 
@@ -618,15 +589,15 @@
               <input type="text" id="userTextAnswer" placeholder="Cevabını buraya yaz ve Enter'a bas..." autocomplete="off" />
               <div class="text-answer-actions">
                 <button class="btn btn-primary" id="submitTextAnswerBtn">Cevabı Kontrol Et</button>
-                <button class="btn btn-secondary" id="hintBtn">💡 İpucu Göster</button>
+                <button class="btn btn-secondary" id="hintBtn">İpucu Göster</button>
               </div>
             </div>
 
             <div id="classicSelfEvalContainer" class="classic-eval-box hidden">
               <p>Kendi cevabını aşağıdaki doğru cevapla karşılaştır, doğru bildiysen işaretle:</p>
               <div class="eval-buttons">
-                <button class="btn btn-success" id="selfEvalCorrectBtn">✅ Doğru Bildim</button>
-                <button class="btn btn-danger" id="selfEvalWrongBtn">❌ Bilemedim / Eksik</button>
+                <button class="btn btn-success" id="selfEvalCorrectBtn">✓ Doğru Bildim</button>
+                <button class="btn btn-danger" id="selfEvalWrongBtn">✗ Bilemedim / Eksik</button>
               </div>
             </div>
 
@@ -644,9 +615,9 @@
         </div>
 
         <div id="quizResultContainer" class="card quiz-result-card hidden">
-          <div class="result-trophy" id="resultEmoji">🏆</div>
+          <div class="result-trophy" id="resultEmoji">★</div>
           <h2 id="resultHeadline">Tebrikler! Sınavı Tamamladın</h2>
-          <p id="resultSubtext">Notların üzerindeki hakimiyetin harika görünüyor.</p>
+          <p id="resultSubtext">Notların üzerindeki çalışma sonucun aşağıdadır.</p>
 
           <div class="result-stats-row">
             <div class="res-box">
@@ -664,9 +635,9 @@
           </div>
 
           <div class="result-actions">
-            <button class="btn btn-primary" id="retryWrongBtn">🔄 Sadece Yanlışlarımı Çöz</button>
-            <button class="btn btn-secondary" id="regenerateQuizBtn">🎲 Aynı Nottan Yeni Sorular Üret</button>
-            <button class="btn btn-secondary" data-goto="upload">📄 Yeni Not Yükle</button>
+            <button class="btn btn-primary" id="retryWrongBtn">Sadece Yanlışlarımı Çöz</button>
+            <button class="btn btn-secondary" id="regenerateQuizBtn">Aynı Nottan Yeni Sorular Üret</button>
+            <button class="btn btn-secondary" data-goto="upload">Yeni Not Yükle</button>
           </div>
         </div>
       </section>
@@ -674,7 +645,7 @@
       <section class="tab-panel" id="tab-flashcards">
         <header class="panel-header">
           <div>
-            <h2>🃏 Bilgi Kartları (Flashcard)</h2>
+            <h2>Bilgi Kartları (Flashcard)</h2>
             <p>Notundaki önemli kavramları kartları çevirerek hızlıca tekrar et.</p>
           </div>
         </header>
@@ -692,11 +663,11 @@
           <div class="flashcard-scene" id="flashcardScene">
             <div class="flashcard-inner" id="flashcardInner">
               <div class="flashcard-face flashcard-front">
-                <span class="fc-hint">SORU / KAVRAM (Çevirmek için tıkla)</span>
+                <span class="fc-hint">KAVRAM (Çevirmek için tıkla)</span>
                 <p id="fcFrontText">Kavram</p>
               </div>
               <div class="flashcard-face flashcard-back">
-                <span class="fc-hint">CEVAP / AÇIKLAMA</span>
+                <span class="fc-hint">TANIM / AÇIKLAMA</span>
                 <p id="fcBackText">Açıklama</p>
               </div>
             </div>
@@ -704,7 +675,7 @@
 
           <div class="flashcard-controls">
             <button class="btn btn-secondary" id="fcPrevBtn">← Önceki Kart</button>
-            <button class="btn btn-primary" id="fcFlipBtn">🔄 Kartı Çevir</button>
+            <button class="btn btn-primary" id="fcFlipBtn">Kartı Çevir</button>
             <button class="btn btn-secondary" id="fcNextBtn">Sonraki Kart →</button>
           </div>
         </div>
@@ -713,12 +684,12 @@
       <section class="tab-panel" id="tab-mistakes">
         <header class="panel-header">
           <div>
-            <h2>🔄 Yanlış Yaptığım Sorular</h2>
+            <h2>Yanlış Yaptığım Sorular</h2>
             <p>Yanlış cevapladığın sorular burada birikir. Öğrenene kadar tekrar çözebilirsin.</p>
           </div>
           <div class="header-btns">
-            <button class="btn btn-primary" id="practiceAllMistakesBtn">🎯 Yanlışlarımdan Sınav Başlat</button>
-            <button class="btn btn-secondary" id="clearMistakesBtn">🗑️ Temizle</button>
+            <button class="btn btn-primary" id="practiceAllMistakesBtn">Yanlışlarımdan Sınav Başlat</button>
+            <button class="btn btn-secondary" id="clearMistakesBtn">Temizle</button>
           </div>
         </header>
         <div id="mistakesList" class="mistakes-list"></div>
@@ -727,8 +698,8 @@
       <section class="tab-panel" id="tab-library">
         <header class="panel-header">
           <div>
-            <h2>📚 Kayıtlı Ders Notlarım</h2>
-            <p>Daha önce yüklediğin notlar tarayıcında güvende tutulur.</p>
+            <h2>Kayıtlı Ders Notlarım</h2>
+            <p>Daha önce yüklediğin notlar tarayıcında saklanır.</p>
           </div>
         </header>
         <div id="libraryGrid" class="library-grid"></div>
@@ -739,13 +710,13 @@
   <div class="modal-backdrop hidden" id="settingsModal">
     <div class="modal-card">
       <div class="modal-header">
-        <h3>⚙️ Yapay Zeka (Google Gemini API) Ayarları</h3>
+        <h3>Yapay Zeka (Google Gemini API) Ayarları</h3>
         <button class="btn-close" id="closeSettingsBtn">✕</button>
       </div>
       <div class="modal-body">
         <p class="modal-desc">
-          Uygulama varsayılan olarak <strong>API anahtarı gerektirmeden</strong> yerel akıllı soru motoruyla çalışır.
-          Ancak öğretmen tarzı derin yorum soruları istersen ücretsiz bir <strong>Google Gemini API Anahtarı</strong> girebilirsin.
+          Uygulama varsayılan olarak <strong>API anahtarı gerektirmeden</strong> akıllı kavram analiz motoruyla çalışır.
+          İstersen ücretsiz bir <strong>Google Gemini API Anahtarı</strong> da ekleyebilirsin.
         </p>
         <div class="form-group">
           <label>Gemini API Key (İsteğe Bağlı)</label>
@@ -805,7 +776,9 @@ Endoplazmik Retikulum: Hücre zarı ile çekirdek zarı arasında uzanan kanalc�
 
 Kloroplast: Bitki hücrelerinde fotosentez yaparak inorganik maddelerden organik besin ve oksijen üreten çift zarlı organeldir. Çift zarlıdır ve kendine ait DNA, RNA ve ribozomu vardır.
 
-Sentrozom: Hayvan hücrelerinde hücre bölünmesi sırasında iğ ipliklerini oluşturan zarsız organeldir. Sinir hücreleri, olgun alyuvarlar, yumurta hücresi ve gelişmiş bitki hücrelerinde sentrozom bulunmaz.`
+Sentrozom: Hayvan hücrelerinde hücre bölünmesi sırasında iğ ipliklerini oluşturan zarsız organeldir. Sinir hücreleri, olgun alyuvarlar, yumurta hücresi ve gelişmiş bitki hücrelerinde sentrozom bulunmaz.
+
+Hücre Zarı: Hücreyi dış ortamdan ayıran, madde alışverişini kontrol eden seçici geçirgen, canlı ve esnek yapıdır. Akıcı-Mozaik Zar Modeli, 1972 yılında Singer ve Nicolson tarafından açıklanmıştır.`
     };
 
     const navButtons = document.querySelectorAll('.nav-btn');
@@ -868,7 +841,7 @@ Sentrozom: Hayvan hücrelerinde hücre bölünmesi sırasında iğ ipliklerini o
         noteTitleInput.value = SAMPLE_NOTE.title;
         noteContentInput.value = SAMPLE_NOTE.content;
         updateWordCount();
-        showToast('✨ Örnek Biyoloji ders notu yüklendi!');
+        showToast('Örnek Biyoloji ders notu yüklendi.');
       });
 
       document.querySelectorAll('#questionCountSelector .pill').forEach((pill) => {
@@ -925,9 +898,9 @@ Sentrozom: Hayvan hücrelerinde hücre bölünmesi sırasında iğ ipliklerini o
         }
         noteContentInput.value = extractedText.trim();
         updateWordCount();
-        showToast(`📄 "${file.name}" başarıyla aktarıldı!`);
+        showToast(`"${file.name}" başarıyla aktarıldı.`);
       } catch (err) {
-        showToast(`⚠️ Hata: ${err.message}`);
+        showToast(`Hata: ${err.message}`);
       } finally {
         fileLoadingState.classList.add('hidden');
         fileInput.value = '';
@@ -941,7 +914,19 @@ Sentrozom: Hayvan hücrelerinde hücre bölünmesi sırasında iğ ipliklerini o
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
         const content = await page.getTextContent();
-        fullText += content.items.map((item) => item.str).join(' ') + '\n\n';
+        let lastY = null;
+        let pageStr = '';
+        for (const item of content.items) {
+          const y = item.transform ? Math.round(item.transform[5]) : null;
+          if (lastY !== null && y !== null && Math.abs(y - lastY) > 6) {
+            pageStr += '\n';
+          } else if (pageStr && !pageStr.endsWith(' ') && !pageStr.endsWith('\n')) {
+            pageStr += ' ';
+          }
+          pageStr += item.str;
+          lastY = y;
+        }
+        fullText += pageStr + '\n\n';
       }
       return fullText;
     }
@@ -952,11 +937,219 @@ Sentrozom: Hayvan hücrelerinde hücre bölünmesi sırasında iğ ipliklerini o
       return result.value;
     }
 
+    // ============================================================================
+    // KAYNAKÇA FİLTRELİ AKILLI KAVRAM & SORU MOTORU
+    // ============================================================================
+
+    const BANNED_CONCEPT_WORDS = new Set([
+      'kaynak', 'kaynakça', 'kaynaklar', 'referans', 'referanslar', 'dipnot', 'dipnotlar',
+      'sayfa', 'bölüm', 'ünite', 'konu', 'giriş', 'sonuç', 'özet', 'önsöz', 'içindekiler',
+      'şekil', 'tablo', 'grafik', 'resim', 'harita', 'örnek', 'örneğin', 'mesela', 'uyarı',
+      'not', 'dikkat', 'soru', 'cevap', 'çözüm', 'madde', 'maddeler', 'özellik', 'özellikler',
+      'yukarıda', 'yukarıdaki', 'aşağıda', 'aşağıdaki', 'yandaki', 'şekilde', 'tabloda',
+      'ancak', 'fakat', 'lakin', 'ama', 'veya', 'yahut', 'çünkü', 'zira', 'oysa', 'halbuki',
+      'böylece', 'dolayısıyla', 'sonucunda', 'nedeniyle', 'sebebiyle', 'amacıyla', 'sayesinde',
+      'tarafından', 'arasında', 'üzerinde', 'içinde', 'içerisinde', 'dışında', 'altında',
+      'karşısında', 'yanında', 'etrafında', 'boyunca', 'hakkında', 'ilgili', 'ilişkin',
+      'göre', 'kadar', 'sonra', 'önce', 'beri', 'doğru', 'karşı', 'rağmen', 'üzere',
+      'olarak', 'olup', 'olan', 'olur', 'olması', 'olduğu', 'olduğunu', 'olmak',
+      'bulunan', 'bulunur', 'bulunmaz', 'bulunmaktadır', 'vardır', 'yoktur', 'mevcuttur',
+      'yapılan', 'yapılır', 'yapılmaktadır', 'edilen', 'edilir', 'edilmektedir', 'verilen',
+      'verilir', 'görülen', 'görülür', 'denir', 'adlandırılır', 'bilinir', 'sağlar', 'sağlayan',
+      'oluşan', 'oluşur', 'oluşturur', 'gerçekleşen', 'gerçekleşir', 'meydana', 'gelen', 'gelir',
+      'genellikle', 'özellikle', 'çoğunlukla', 'bazen', 'kimi', 'bazı', 'birçok', 'herhangi',
+      'bütün', 'tüm', 'diğer', 'başka', 'aynı', 'farklı', 'çeşitli', 'belirli', 'önemli',
+      'temel', 'başlıca', 'genel', 'özel', 'kısa', 'uzun', 'büyük', 'küçük', 'yüksek', 'düşük',
+      'fazla', 'az', 'çok', 'daha', 'en', 'pek', 'oldukça', 'gayet', 'hem', 'ne', 'ya', 'ise',
+      'bile', 'dahi', 'sadece', 'yalnızca', 'ayrıca', 'üstelik', 'hatta', 'yani', 'kısaca',
+      'buna', 'bunlar', 'bunun', 'bundan', 'şunlar', 'onlar', 'kendi', 'kendisi', 'birbiri',
+      'yayınları', 'yayınevi', 'üniversitesi', 'fakültesi', 'enstitüsü', 'dergisi', 'basım', 'baskı'
+    ]);
+
+    function isNoiseOrReferenceLine(line) {
+      const s = line.trim();
+      if (s.length < 18) return true;
+      if (/\.{4,}|\s\d+\s*$/.test(s) && s.length < 90) return true;
+      if (/https?:\/\/|www\.|\.com|\.org|\.edu|\.gov|doi:|10\.\d{4}\/|isbn|issn|@/i.test(s)) return true;
+      if (
+        /^\[\d+\]/.test(s) ||
+        /^[A-ZÇĞİÖŞÜ][a-zçğıöşü]+,\s*([A-ZÇĞİÖŞÜ]\.\s*)+(\(\d{4}\)|\d{4})/.test(s) ||
+        /\(\s*[A-ZÇĞİÖŞÜa-zçğıöşü]+\s+(ve\s+ark\.|et\s+al\.|&\s+[A-ZÇĞİÖŞÜa-zçğıöşü]+)?\s*,?\s*\d{4}[a-z]?\s*\)/i.test(s) ||
+        /\b(yayınları|yayınevi|basımevi|matbaası|baskı|basım|cilt|sayı|ss\.|syf\.|sayfa\s*\d+|s\.\s*\d+|erişim\s*tarihi|kaynak\s*:|kaynakça|referanslar|bibliography)\b/i.test(s) ||
+        /\b(prof\.\s*dr\.|doç\.\s*dr\.|dr\.\s*öğr\.\s*üyesi|arş\.\s*gör\.|üniversitesi|fakültesi|bölümü|ders\s*notu|slayt|sunum)\b/i.test(s) ||
+        /^(şekil|tablo|grafik|resim|harita|ek)\s*\d+/i.test(s)
+      ) {
+        return true;
+      }
+      const letters = (s.match(/[A-ZÇĞİÖŞÜa-zçğıöşü]/g) || []).length;
+      if (letters < s.length * 0.55) return true;
+      return false;
+    }
+
+    function cleanStudyText(rawText) {
+      const lines = rawText.replace(/\r\n/g, '\n').split('\n');
+      const cleanedLines = [];
+      for (let rawLine of lines) {
+        const line = rawLine.trim();
+        if (!line) continue;
+        if (/^(?:\d+[\.\)]\s*)?(kaynakça|kaynaklar|referanslar|yararlanılan\s+kaynaklar|bibliography|references|dipnotlar)\s*:?$/i.test(line)) {
+          break;
+        }
+        if (isNoiseOrReferenceLine(line)) continue;
+        cleanedLines.push(line);
+      }
+      return cleanedLines.join('\n');
+    }
+
+    function isValidConceptTerm(term) {
+      if (!term) return false;
+      const clean = term
+        .replace(/^[•*\-–—\d.)(\[\]]+\s*/, '')
+        .replace(/^["'“”‘’]+|["'“”‘’.,;!?]+$/g, '')
+        .trim();
+      if (clean.length < 3 || clean.length > 42) return false;
+      const words = clean.split(/\s+/);
+      if (words.length > 4) return false;
+      const lowerClean = clean.toLocaleLowerCase('tr-TR');
+      if (BANNED_CONCEPT_WORDS.has(lowerClean)) return false;
+      if (/^\d+$/.test(clean)) return false;
+
+      const firstWord = words[0].toLocaleLowerCase('tr-TR');
+      const lastWord = words[words.length - 1].toLocaleLowerCase('tr-TR');
+      if (BANNED_CONCEPT_WORDS.has(firstWord) || BANNED_CONCEPT_WORDS.has(lastWord)) return false;
+
+      if (/(maktadır|mektedir|mıştır|miştir|muştur|müştür|acaktır|ecektir|malıdır|melidir|abilir|ebilir|iyor|üyor|uyor|ıyo|erek|arak|ken|ınca|ince|dığında|diğinde|tığında|tiğinde|masıdır|mesidir|olması|edilmesi|yapılması)$/i.test(lowerClean)) {
+        return false;
+      }
+      return true;
+    }
+
+    function normalizeConceptTitle(term) {
+      const clean = term
+        .replace(/^[•*\-–—\d.)(\[\]]+\s*/, '')
+        .replace(/^["'“”‘’]+|["'“”‘’.,;!?]+$/g, '')
+        .trim();
+      return clean
+        .split(/\s+/)
+        .map((w) => {
+          if (w.length <= 4 && w === w.toUpperCase() && /[A-Z]/.test(w)) return w;
+          return w.charAt(0).toLocaleUpperCase('tr-TR') + w.slice(1);
+        })
+        .join(' ');
+    }
+
+    function extractKnowledgeBase(rawText) {
+      const cleanedText = cleanStudyText(rawText);
+      const lines = cleanedText.split('\n').map((l) => l.trim()).filter(Boolean);
+      const conceptMap = new Map();
+      const standaloneFacts = [];
+
+      function registerConcept(rawTerm, definition, sourceSent) {
+        if (!isValidConceptTerm(rawTerm)) return;
+        const term = normalizeConceptTitle(rawTerm);
+        const key = term.toLocaleLowerCase('tr-TR');
+        let cleanDef = definition.replace(/^[:–—\-]\s*/, '').replace(/\s+/g, ' ').trim();
+        if (cleanDef.length < 22 || cleanDef.length > 260) return;
+        if (isNoiseOrReferenceLine(cleanDef)) return;
+
+        if (!conceptMap.has(key)) {
+          conceptMap.set(key, {
+            term,
+            definition: cleanDef,
+            facts: [cleanDef],
+            source: sourceSent || `${term}: ${cleanDef}`
+          });
+        } else {
+          const existing = conceptMap.get(key);
+          if (!existing.facts.includes(cleanDef)) existing.facts.push(cleanDef);
+        }
+      }
+
+      for (const line of lines) {
+        const colonMatch = line.match(/^(?:[•*\-]\s*)?([A-ZÇĞİÖŞÜa-zçğıöşü0-9\s()\/]{3,40}?)\s*[:–—-]\s+(.{22,})$/);
+        if (colonMatch) {
+          const candidateTerm = colonMatch[1].trim();
+          const firstSent = colonMatch[2].split(/(?<=[.!?])\s+/)[0].trim();
+          registerConcept(candidateTerm, firstSent, line);
+        }
+      }
+
+      const allSentences = [];
+      for (const line of lines) {
+        const parts = line.split(/(?<=[.!?])\s+/);
+        for (const p of parts) {
+          const s = p.trim();
+          if (s.length >= 28 && s.length <= 250 && !isNoiseOrReferenceLine(s)) {
+            allSentences.push(s);
+          }
+        }
+      }
+
+      for (const sent of allSentences) {
+        const denirMatch = sent.match(/^(.{20,}?)\s+([A-ZÇĞİÖŞÜa-zçğıöşü0-9\s()-]{3,34}?)\s+(?:denir|adı\s+verilir|olarak\s+adlandırılır|olarak\s+bilinir|isimlendirilir)\.?$/i);
+        if (denirMatch) {
+          let defPart = denirMatch[1].trim();
+          let termPart = denirMatch[2].trim();
+          const tWords = termPart.split(/\s+/);
+          if (tWords.length > 3) {
+            defPart += ' ' + tWords.slice(0, tWords.length - 2).join(' ');
+            termPart = tWords.slice(-2).join(' ');
+          }
+          registerConcept(termPart, defPart + '.', sent);
+          continue;
+        }
+
+        const subjectDefMatch = sent.match(/^([A-ZÇĞİÖŞÜ][A-ZÇĞİÖŞÜa-zçğıöşü0-9\s()-]{2,34}?)\s*,\s*(.{22,}(?:dir|dır|dur|dür|tir|tır|tur|tür|sentezler|üretir|sağlar|görev\s+alır|sorumludur|oluşur|bulunur|gerçekleşir)\.)$/);
+        if (subjectDefMatch) {
+          registerConcept(subjectDefMatch[1].trim(), subjectDefMatch[2].trim(), sent);
+          continue;
+        }
+
+        let matchedKnown = false;
+        for (const [key, item] of conceptMap.entries()) {
+          if (sent.toLocaleLowerCase('tr-TR').startsWith(key)) {
+            const remainder = sent.slice(item.term.length).replace(/^[,:\s–-]+/, '').trim();
+            if (remainder.length >= 25 && !item.facts.includes(sent)) {
+              item.facts.push(sent);
+              matchedKnown = true;
+              break;
+            }
+          }
+        }
+
+        if (!matchedKnown && sent.length >= 35 && sent.length <= 210) {
+          standaloneFacts.push(sent);
+        }
+      }
+
+      if (conceptMap.size < 6) {
+        for (const sent of standaloneFacts) {
+          const match = sent.match(/^([A-ZÇĞİÖŞÜ][a-zçğıöşü]+(?:\s+[A-ZÇĞİÖŞÜa-zçğıöşü]+){0,2})\s+(?:ise|sayesinde|sonucunda|ile|tarafından|hücrede|vücutta|doğada|sistemde)\s+(.{22,})$/);
+          if (match) {
+            registerConcept(match[1], sent, sent);
+            continue;
+          }
+          const words = sent.split(/\s+/);
+          if (words.length >= 6) {
+            const candidate1 = words[0].replace(/[,:;]/g, '');
+            const candidate2 = words.slice(0, 2).join(' ').replace(/[,:;]/g, '');
+            if (/^[A-ZÇĞİÖŞÜ]/.test(candidate2) && isValidConceptTerm(candidate2) && /[A-ZÇĞİÖŞÜ]/.test(words[1])) {
+              registerConcept(candidate2, words.slice(2).join(' '), sent);
+            } else if (/^[A-ZÇĞİÖŞÜ]/.test(candidate1) && candidate1.length >= 5 && isValidConceptTerm(candidate1)) {
+              registerConcept(candidate1, words.slice(1).join(' '), sent);
+            }
+          }
+        }
+      }
+
+      return { concepts: Array.from(conceptMap.values()), facts: standaloneFacts };
+    }
+
     async function handleGenerateQuiz() {
       const rawText = noteContentInput.value.trim();
       const title = noteTitleInput.value.trim() || 'Ders Notu Çalışması';
       if (rawText.length < 40) {
-        showToast('⚠️ Soru üretmek için lütfen biraz daha uzun bir ders notu girin veya Örnek Not yükleyin.');
+        showToast('Soru üretmek için lütfen biraz daha uzun bir ders notu girin veya Örnek Not yükleyin.');
         return;
       }
 
@@ -967,7 +1160,7 @@ Sentrozom: Hayvan hücrelerinde hücre bölünmesi sırasında iğ ipliklerini o
       if (document.getElementById('typeClassic').checked) allowedTypes.push('classic');
 
       if (allowedTypes.length === 0) {
-        showToast('⚠️ Lütfen en az bir soru tipi seçin.');
+        showToast('Lütfen en az bir soru tipi seçin.');
         return;
       }
 
@@ -975,205 +1168,205 @@ Sentrozom: Hayvan hücrelerinde hücre bölünmesi sırasında iğ ipliklerini o
       const btn = document.getElementById('generateQuizBtn');
       const originalBtnText = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = '⏳ Sorular Hazırlanıyor...';
+      btn.innerHTML = 'Notlar Analiz Ediliyor...';
 
       try {
         const generated = (state.engineMode === 'ai' && state.geminiKey)
-          ? await generateWithGeminiAI(title, rawText, state.questionCount, allowedTypes)
+          ? await generateWithGeminiAI(title, cleanStudyText(rawText), state.questionCount, allowedTypes)
           : generateSmartLocalQuiz(title, rawText, state.questionCount, allowedTypes);
 
         if (!generated.questions || generated.questions.length === 0) {
-          throw new Error('Bu metinden soru çıkarılamadı.');
+          throw new Error('Bu metinden anlamlı kavram/tanım çıkarılamadı. Lütfen konu anlatımı içeren bir metin girin.');
         }
 
         startQuizSession(title, rawText, generated.questions, generated.flashcards);
-        showToast(`🎯 ${generated.questions.length} soru hazırlandı!`);
+        showToast(`${generated.questions.length} nitelikli soru hazırlandı.`);
         switchTab('quiz');
       } catch (err) {
-        showToast(`⚠️ ${err.message}`);
+        showToast(`${err.message}`);
       } finally {
         btn.disabled = false;
         btn.innerHTML = originalBtnText;
       }
     }
 
-    function generateSmartLocalQuiz(title, text, desiredCount, allowedTypes) {
-      const cleanText = text.replace(/\r\n/g, '\n');
-      const pairs = [];
-      const lines = cleanText.split(/\n+/).map((l) => l.trim()).filter(Boolean);
-
-      for (const line of lines) {
-        const colonMatch = line.match(/^([A-ZÇĞİÖŞÜa-zçğıöşü0-9\s()]{2,42})\s*[:–-]\s*(.{20,})$/);
-        if (colonMatch) {
-          const term = colonMatch[1].replace(/^[•*-]\s*/, '').trim();
-          const firstSentence = colonMatch[2].split(/(?<=[.!?])\s+/)[0].trim();
-          if (term.split(/\s+/).length <= 5 && firstSentence.length >= 20) {
-            pairs.push({ term, definition: firstSentence, source: line });
-          }
-        }
-      }
-
-      const rawSentences = cleanText
-        .replace(/\n+/g, ' ')
-        .split(/(?<=[.!?])\s+/)
-        .map((s) => s.trim())
-        .filter((s) => s.length >= 30 && s.length <= 260);
-
-      for (const sent of rawSentences) {
-        const denirMatch = sent.match(/(.{20,})\s+([A-ZÇĞİÖŞÜa-zçğıöşü\s]{3,30})\s+(denir|olarak adlandırılır|adı verilir)\.?$/i);
-        if (denirMatch) {
-          const defPart = denirMatch[1].trim();
-          const termPart = denirMatch[2].trim();
-          if (termPart.split(/\s+/).length <= 4 && !pairs.some((p) => p.term.toLowerCase() === termPart.toLowerCase())) {
-            pairs.push({ term: capitalizeWords(termPart), definition: defPart, source: sent });
-          }
-        }
-      }
-
-      const stopWords = new Set([
-        'için', 'olan', 'olarak', 'ancak', 'fakat', 'veya', 'göre', 'kadar',
-        'sonra', 'önce', 'üzerinde', 'içinde', 'arasında', 'tarafından', 'birlikte',
-        'olup', 'olur', 'vardır', 'yoktur', 'bulunur', 'bulunmaz', 'denir', 'ise',
-        'daha', 'çok', 'gibi', 'böylece', 'dolayı', 'buna', 'bunlar', 'şekilde'
-      ]);
-
-      const wordFreq = {};
-      const candidateTerms = new Set(pairs.map((p) => p.term));
-
-      rawSentences.forEach((s) => {
-        const words = s.match(/[A-ZÇĞİÖŞÜa-zçğıöşü0-9-]{4,}/g) || [];
-        words.forEach((w) => {
-          const lower = w.toLowerCase();
-          if (!stopWords.has(lower)) {
-            wordFreq[w] = (wordFreq[w] || 0) + 1;
-            if (/^[A-ZÇĞİÖŞÜ]/.test(w) && w.length >= 5) candidateTerms.add(w);
-          }
-        });
-      });
-
-      Object.entries(wordFreq).sort((a, b) => b[1] - a[1]).slice(0, 30).forEach(([w]) => candidateTerms.add(w));
-      const allTermPool = Array.from(candidateTerms);
-
-      const flashcards = pairs.map((p) => ({ front: p.term, back: p.definition }));
-      for (const sent of rawSentences) {
-        if (flashcards.length >= 15) break;
-        const keyWord = findBestKeywordInSentence(sent, stopWords);
-        if (keyWord && !flashcards.some((f) => f.front.toLowerCase() === keyWord.toLowerCase())) {
-          flashcards.push({ front: `${capitalizeWords(keyWord)} nedir?`, back: sent });
-        }
-      }
-
+    function generateSmartLocalQuiz(title, rawText, desiredCount, allowedTypes) {
+      const { concepts, facts } = extractKnowledgeBase(rawText);
+      const allConceptNames = concepts.map((c) => c.term);
+      const flashcards = concepts.map((c) => ({ front: c.term, back: c.definition }));
       const questionPool = [];
-      for (const p of pairs) {
+
+      for (let i = 0; i < concepts.length; i++) {
+        const item = concepts[i];
+        const otherConcepts = concepts.filter((_, idx) => idx !== i);
+        const maskedDef = maskConceptInSentence(item.definition, item.term);
+
         if (allowedTypes.includes('mcq')) {
-          const distractors = pickDistractors(p.term, pairs.map((x) => x.term).concat(allTermPool), 3);
-          if (distractors.length === 3) {
-            const cleanDef = maskTermInText(p.definition, p.term);
+          const distractorTerms = pickCleanDistractorTerms(item.term, allConceptNames, 3);
+          if (distractorTerms.length === 3) {
             questionPool.push({
               type: 'mcq',
-              prompt: `"${cleanDef}"\n\nNotlara göre yukarıda özelliği verilen kavram aşağıdakilerden hangisidir?`,
-              options: shuffleArray([p.term, ...distractors]),
-              answer: p.term,
-              explanation: `Doğru cevap "${p.term}" kavramıdır.`,
-              source: p.source
+              priority: 1,
+              prompt: `"${maskedDef}"\n\nDers notuna göre yukarıda özelliği/tanımı verilen kavram aşağıdakilerden hangisidir?`,
+              options: shuffleArray([item.term, ...distractorTerms]),
+              answer: item.term,
+              explanation: `Verilen tanım "${item.term}" kavramına aittir.`,
+              source: item.source
             });
           }
         }
+
+        if (allowedTypes.includes('mcq') && otherConcepts.length >= 3) {
+          const wrongDefs = shuffleArray(otherConcepts)
+            .slice(0, 3)
+            .map((oc) => maskConceptInSentence(oc.definition, oc.term));
+          const correctDef = maskConceptInSentence(item.definition, item.term);
+
+          if (!wrongDefs.includes(correctDef) && correctDef.length >= 20 && wrongDefs.every((d) => d.length >= 20)) {
+            questionPool.push({
+              type: 'mcq',
+              priority: 1,
+              prompt: `Ders notlarındaki bilgilere göre "${item.term}" ile ilgili aşağıdaki ifadelerden hangisi doğrudur?`,
+              options: shuffleArray([correctDef, ...wrongDefs]),
+              answer: correctDef,
+              explanation: `"${item.term}" için doğru açıklama: ${item.definition}`,
+              source: item.source
+            });
+          }
+        }
+
         if (allowedTypes.includes('blank')) {
-          const cleanDef = maskTermInText(p.definition, p.term);
           questionPool.push({
             type: 'blank',
-            prompt: `Boşluğu uygun kavramla doldurun:\n\n"_______ : ${cleanDef}"`,
-            answer: p.term,
-            explanation: `Bu tanım "${p.term}" kavramına aittir.`,
-            source: p.source
+            priority: 1,
+            prompt: `Aşağıdaki tanımda boş bırakılan yere uygun kavramı yazınız:\n\n"_______ : ${maskedDef}"`,
+            answer: item.term,
+            explanation: `Doğru kavram: ${item.term}`,
+            source: item.source
           });
         }
+
+        if (allowedTypes.includes('tf')) {
+          const makeTrue = i % 2 === 0 || otherConcepts.length === 0;
+          if (makeTrue) {
+            questionPool.push({
+              type: 'tf',
+              priority: 2,
+              prompt: `Doğru mu, Yanlış mı?\n\n"${item.term}: ${item.definition}"`,
+              options: ['Doğru', 'Yanlış'],
+              answer: 'Doğru',
+              explanation: `Doğru! Notlarda "${item.term}" tam olarak bu şekilde açıklanmıştır.`,
+              source: item.source
+            });
+          } else {
+            const other = otherConcepts[i % otherConcepts.length];
+            const fakeStatement = `${other.term}: ${maskedDef}`;
+            questionPool.push({
+              type: 'tf',
+              priority: 1,
+              prompt: `Doğru mu, Yanlış mı?\n\n"${fakeStatement}"`,
+              options: ['Doğru', 'Yanlış'],
+              answer: 'Yanlış',
+              explanation: `Yanlış! Bu özellik "${other.term}" kavramına değil, "${item.term}" kavramına aittir.`,
+              source: item.source
+            });
+          }
+        }
+
         if (allowedTypes.includes('classic')) {
           questionPool.push({
             type: 'classic',
-            prompt: `Ders notuna göre "${p.term}" nedir ve temel görevi/özelliği nedir?`,
-            answer: p.definition,
-            explanation: `Notlardaki tam karşılığı: ${p.definition}`,
-            source: p.source
+            priority: 2,
+            prompt: `Ders notuna göre "${item.term}" nedir ve temel görevi/özelliği nedir? Açıklayınız.`,
+            answer: item.definition,
+            explanation: `Notlardaki tam karşılığı: ${item.definition}`,
+            source: item.source
           });
         }
       }
 
-      for (const sent of rawSentences) {
-        const keyword = findBestKeywordInSentence(sent, stopWords);
-        if (!keyword) continue;
-        const maskedSent = maskTermInText(sent, keyword);
-        if (maskedSent === sent) continue;
+      if (allowedTypes.includes('mcq') && concepts.length >= 4) {
+        for (let i = 0; i < Math.min(3, Math.floor(concepts.length / 2)); i++) {
+          const shuffledConcepts = shuffleArray(concepts);
+          const trueThree = shuffledConcepts
+            .slice(0, 3)
+            .map((c) => `${c.term}: ${maskConceptInSentence(c.definition, c.term)}`);
+          const target = shuffledConcepts[3];
+          const decoy = shuffledConcepts[0];
+          const falseOne = `${target.term}: ${maskConceptInSentence(decoy.definition, decoy.term)}`;
 
-        if (allowedTypes.includes('mcq')) {
-          const distractors = pickDistractors(keyword, allTermPool, 3);
-          if (distractors.length === 3) {
-            questionPool.push({
-              type: 'mcq',
-              prompt: `Notlardaki bilgiye göre aşağıdaki cümlede boş bırakılan yere hangisi gelmelidir?\n\n"${maskedSent}"`,
-              options: shuffleArray([keyword, ...distractors]),
-              answer: keyword,
-              explanation: `Cümlede boş bırakılan anahtar kavram: "${keyword}"`,
-              source: sent
-            });
-          }
-        }
-        if (allowedTypes.includes('blank')) {
           questionPool.push({
-            type: 'blank',
-            prompt: `Notlara göre cümledeki boşluğu doldurun:\n\n"${maskedSent}"`,
-            answer: keyword,
-            explanation: `Doğru anahtar kelime: "${keyword}"`,
-            source: sent
+            type: 'mcq',
+            priority: 1,
+            prompt: `Ders notlarındaki bilgilere göre aşağıdaki eşleştirmelerden hangisi YANLIŞTIR?`,
+            options: shuffleArray([...trueThree, falseOne]),
+            answer: falseOne,
+            explanation: `"${target.term}" için verilen açıklama yanlıştır (bu özellik "${decoy.term}" kavramına aittir). Doğrusu: ${target.definition}`,
+            source: target.source
           });
         }
-        if (allowedTypes.includes('tf')) {
-          if (Math.random() > 0.48) {
-            questionPool.push({
-              type: 'tf',
-              prompt: `Doğru mu, Yanlış mı?\n\n"${sent}"`,
-              options: ['Doğru', 'Yanlış'],
-              answer: 'Doğru',
-              explanation: 'Bu ifade ders notlarında yer alan doğru bir bilgidir.',
-              source: sent
-            });
-          } else {
-            const replacement = pickDistractors(keyword, allTermPool, 1)[0];
-            if (replacement) {
-              const fakeSent = sent.replace(new RegExp(escapeRegExp(keyword), 'i'), replacement);
-              if (fakeSent !== sent) {
-                questionPool.push({
-                  type: 'tf',
-                  prompt: `Doğru mu, Yanlış mı?\n\n"${fakeSent}"`,
-                  options: ['Doğru', 'Yanlış'],
-                  answer: 'Yanlış',
-                  explanation: `Yanlış! Cümlede "${replacement}" yerine "${keyword}" olmalıdır.`,
-                  source: sent
-                });
-              }
+      }
+
+      for (const sent of facts) {
+        const mentionedConcept = concepts.find((c) =>
+          new RegExp(`\\b${escapeRegExp(c.term)}`, 'i').test(sent)
+        );
+        if (mentionedConcept) {
+          const maskedSent = maskConceptInSentence(sent, mentionedConcept.term);
+          if (maskedSent !== sent && maskedSent.includes('_______') && allowedTypes.includes('mcq')) {
+            const distractors = pickCleanDistractorTerms(mentionedConcept.term, allConceptNames, 3);
+            if (distractors.length === 3) {
+              questionPool.push({
+                type: 'mcq',
+                priority: 2,
+                prompt: `Notlardaki bilgiye göre aşağıdaki cümlede boş bırakılan yere hangi kavram gelmelidir?\n\n"${maskedSent}"`,
+                options: shuffleArray([mentionedConcept.term, ...distractors]),
+                answer: mentionedConcept.term,
+                explanation: `Boşluğa gelmesi gereken kavram: "${mentionedConcept.term}".`,
+                source: sent
+              });
             }
           }
         }
       }
 
-      const shuffled = shuffleArray(questionPool);
+      const p1 = shuffleArray(questionPool.filter((q) => q.priority === 1));
+      const p2 = shuffleArray(questionPool.filter((q) => q.priority !== 1));
+      const combined = [...p1, ...p2];
+
       const selected = [];
-      const usedSources = new Set();
-      for (const q of shuffled) {
+      const usedPrompts = new Set();
+      for (const q of combined) {
         if (selected.length >= desiredCount) break;
-        const key = `${q.type}:${q.source}`;
-        if (!usedSources.has(key)) {
-          usedSources.add(key);
+        if (!usedPrompts.has(q.prompt)) {
+          usedPrompts.add(q.prompt);
           selected.push(q);
         }
       }
-      return { questions: selected.slice(0, desiredCount), flashcards: flashcards.slice(0, 20) };
+
+      return { questions: selected, flashcards: flashcards.slice(0, 25) };
+    }
+
+    function maskConceptInSentence(sentence, conceptTerm) {
+      const stem = conceptTerm.length >= 6 ? conceptTerm.slice(0, -1) : conceptTerm;
+      const regex = new RegExp(`${escapeRegExp(stem)}[a-zçğıöşü']*`, 'gi');
+      return sentence.replace(regex, '_______').replace(/^_______\s*[:–-]\s*/, '');
+    }
+
+    function pickCleanDistractorTerms(correctTerm, conceptPool, count) {
+      const normCorrect = correctTerm.toLocaleLowerCase('tr-TR');
+      const filtered = Array.from(new Set(conceptPool)).filter((c) => {
+        const norm = c.toLocaleLowerCase('tr-TR');
+        return norm !== normCorrect && !norm.includes(normCorrect) && !normCorrect.includes(norm) && isValidConceptTerm(c);
+      });
+      return shuffleArray(filtered).slice(0, count);
     }
 
     async function generateWithGeminiAI(title, text, count, allowedTypes) {
-      const prompt = `Sen uzman bir öğretmensin. Kullanıcının yüklediği ders notundan ${count} adet sınav sorusu ve bilgi kartları (flashcards) üret.
-İzin verilen soru tipleri: ${allowedTypes.join(', ')}
+      const prompt = `Sen uzman bir üniversite/lise öğretmenisin. Kullanıcının yüklediği ders notundan tam ${count} adet üst düzey sınav sorusu ve ayrıca bilgi kartları (flashcards) üreteceksin.
+KESİN KURALLAR:
+1. ASLA kaynakça, yazar isimleri, yayın yılı, sayfa numarası, şekil/tablo numarası veya dipnotlardan soru sorma!
+2. İzin verilen soru tipleri: ${allowedTypes.join(', ')}
 Sadece geçerli bir JSON objesi döndür:
 {
   "questions": [
@@ -1184,7 +1377,7 @@ Sadece geçerli bir JSON objesi döndür:
   ]
 }
 BAŞLIK: ${title}
-NOT: ${text.slice(0, 14000)}`;
+NOT: ${text.slice(0, 15000)}`;
 
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${state.geminiModel}:generateContent?key=${encodeURIComponent(state.geminiKey)}`;
       const response = await fetch(url, {
@@ -1192,7 +1385,7 @@ NOT: ${text.slice(0, 14000)}`;
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.4, responseMimeType: 'application/json' }
+          generationConfig: { temperature: 0.35, responseMimeType: 'application/json' }
         })
       });
       if (!response.ok) throw new Error('Gemini API Hatası. Yerel motoru seçebilir veya API anahtarınızı kontrol edebilirsiniz.');
@@ -1201,32 +1394,6 @@ NOT: ${text.slice(0, 14000)}`;
       return JSON.parse(rawJson.replace(/^```json\s*/i, '').replace(/```\s*$/, ''));
     }
 
-    function findBestKeywordInSentence(sentence, stopWords) {
-      const tokens = sentence.match(/[A-ZÇĞİÖŞÜa-zçğıöşü0-9]{4,}/g) || [];
-      const candidates = tokens.filter((t, idx) => !stopWords.has(t.toLowerCase()) && (idx > 0 || t.length >= 6));
-      if (!candidates.length) return null;
-      candidates.sort((a, b) => b.length - a.length);
-      return candidates[0];
-    }
-
-    function maskTermInText(text, term) {
-      return text.replace(new RegExp(escapeRegExp(term), 'gi'), '_______');
-    }
-
-    function pickDistractors(correctTerm, pool, count) {
-      const unique = Array.from(new Set(pool)).filter(
-        (item) => item.toLowerCase() !== correctTerm.toLowerCase() && !correctTerm.toLowerCase().includes(item.toLowerCase())
-      );
-      const shuffled = shuffleArray(unique);
-      const fallbacks = ['Ribozom', 'Mitokondri', 'ATP', 'Enzim', 'Kloroplast', 'DNA', 'Homeostazi', 'Sentez'];
-      for (const fb of fallbacks) {
-        if (shuffled.length >= count) break;
-        if (!shuffled.includes(fb) && fb.toLowerCase() !== correctTerm.toLowerCase()) shuffled.push(fb);
-      }
-      return shuffled.slice(0, count);
-    }
-
-    function capitalizeWords(str) { return str.replace(/\b\w/g, (l) => l.toUpperCase()); }
     function escapeRegExp(str) { return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
     function shuffleArray(arr) {
       const copy = [...arr];
@@ -1264,7 +1431,7 @@ NOT: ${text.slice(0, 14000)}`;
       document.getElementById('liveWrong').textContent = quiz.wrong;
       document.getElementById('quizProgressBar').style.width = `${((quiz.currentIndex + 1) / quiz.questions.length) * 100}%`;
 
-      const typeNames = { mcq: 'Çoktan Seçmeli Test', blank: 'Boşluk Doldurma', tf: 'Doğru / Yanlış', classic: 'Klasik Açık Uçlu Soru' };
+      const typeNames = { mcq: 'Çoktan Seçmeli Test', blank: 'Kavram Tamamlama', tf: 'Doğru / Yanlış', classic: 'Klasik Açık Uçlu Soru' };
       document.getElementById('qTypeTag').textContent = typeNames[q.type] || 'Soru';
       document.getElementById('questionPrompt').innerText = q.prompt;
 
@@ -1313,7 +1480,7 @@ NOT: ${text.slice(0, 14000)}`;
       if (prevRecord) showQuestionFeedback(prevRecord.isCorrect, q);
       document.getElementById('prevQuestionBtn').disabled = quiz.currentIndex === 0;
       document.getElementById('nextQuestionBtn').textContent =
-        quiz.currentIndex === quiz.questions.length - 1 ? 'Sınavı Bitir ve Sonucu Gör 🏁' : 'Sonraki Soru →';
+        quiz.currentIndex === quiz.questions.length - 1 ? 'Sınavı Bitir ve Sonucu Gör →' : 'Sonraki Soru →';
     }
 
     function submitChoiceAnswer(selectedOption) {
@@ -1330,14 +1497,14 @@ NOT: ${text.slice(0, 14000)}`;
       const q = quiz.questions[quiz.currentIndex];
       if (quiz.answeredMap[quiz.currentIndex]) return;
       const userVal = document.getElementById('userTextAnswer').value.trim();
-      if (!userVal) { showToast('✏️ Lütfen önce cevabını yaz.'); return; }
+      if (!userVal) { showToast('Lütfen önce cevabını yaz.'); return; }
 
       if (q.type === 'classic') {
         const feedbackBox = document.getElementById('feedbackBox');
         feedbackBox.className = 'feedback-box';
-        document.getElementById('feedbackHeader').textContent = '📖 Notlardaki Doğru Cevap:';
+        document.getElementById('feedbackHeader').textContent = 'Notlardaki Doğru Cevap:';
         document.getElementById('feedbackExplanation').textContent = q.answer;
-        document.getElementById('feedbackSource').textContent = `Kaynak Cümle: "${q.source}"`;
+        document.getElementById('feedbackSource').textContent = `Nottaki İlgili Cümle: "${q.source}"`;
         feedbackBox.classList.remove('hidden');
         document.getElementById('classicSelfEvalContainer').classList.remove('hidden');
         return;
@@ -1370,9 +1537,9 @@ NOT: ${text.slice(0, 14000)}`;
     function showQuestionFeedback(isCorrect, q) {
       const feedbackBox = document.getElementById('feedbackBox');
       feedbackBox.className = `feedback-box ${isCorrect ? 'is-correct' : 'is-wrong'}`;
-      document.getElementById('feedbackHeader').textContent = isCorrect ? '✅ Harika! Doğru Cevap' : `❌ Yanlış! Doğru Cevap: ${q.answer}`;
+      document.getElementById('feedbackHeader').textContent = isCorrect ? '✓ Doğru Cevap' : `✗ Yanlış — Doğru Cevap: ${q.answer}`;
       document.getElementById('feedbackExplanation').textContent = q.explanation || '';
-      document.getElementById('feedbackSource').textContent = q.source ? `📌 Nottaki Kaynak: "${q.source}"` : '';
+      document.getElementById('feedbackSource').textContent = q.source ? `Nottaki İlgili Cümle: "${q.source}"` : '';
       feedbackBox.classList.remove('hidden');
     }
 
@@ -1384,7 +1551,7 @@ NOT: ${text.slice(0, 14000)}`;
         if (!q) return;
         const ans = q.answer.trim();
         const hint = ans[0] + ans.slice(1).replace(/[A-ZÇĞİÖŞÜa-zçğıöşü0-9]/g, '•');
-        showToast(`💡 İpucu: ${hint} (${ans.length} harf)`);
+        showToast(`İpucu: ${hint} (${ans.length} harf)`);
       });
       document.getElementById('selfEvalCorrectBtn').addEventListener('click', () => {
         const q = state.activeQuiz.questions[state.activeQuiz.currentIndex];
@@ -1477,7 +1644,7 @@ NOT: ${text.slice(0, 14000)}`;
       else badge.classList.add('hidden');
 
       if (!state.mistakes.length) {
-        list.innerHTML = `<div class="empty-state"><div class="empty-icon">🎉</div><h3>Hiç Yanlış Sorun Yok</h3><p>Yanlış yaptığın sorular otomatik olarak buraya eklenir.</p></div>`;
+        list.innerHTML = `<div class="empty-state"><div class="empty-icon">✓</div><h3>Hiç Yanlış Sorun Yok</h3><p>Yanlış yaptığın sorular otomatik olarak buraya eklenir.</p></div>`;
         return;
       }
       list.innerHTML = state.mistakes.map((m, idx) => `
@@ -1489,7 +1656,7 @@ NOT: ${text.slice(0, 14000)}`;
     }
 
     document.getElementById('practiceAllMistakesBtn').addEventListener('click', () => {
-      if (!state.mistakes.length) { showToast('🎉 Çözülecek yanlış soru bulunmuyor.'); return; }
+      if (!state.mistakes.length) { showToast('Çözülecek yanlış soru bulunmuyor.'); return; }
       startQuizSession('Yanlış Yaptığım Sorular Tekrarı', '', [...state.mistakes], []);
       switchTab('quiz');
     });
@@ -1498,7 +1665,7 @@ NOT: ${text.slice(0, 14000)}`;
       state.mistakes = [];
       localStorage.setItem('notquiz_mistakes', '[]');
       renderMistakes();
-      showToast('🗑️ Yanlış sorular listesi temizlendi.');
+      showToast('Yanlış sorular listesi temizlendi.');
     });
 
     function saveNoteToLibrary(title, content) {
@@ -1518,11 +1685,11 @@ NOT: ${text.slice(0, 14000)}`;
       }
       grid.innerHTML = state.library.map((item, idx) => `
         <div class="library-card">
-          <h4>📄 ${item.title}</h4>
+          <h4>${item.title}</h4>
           <div class="library-meta">${item.wordCount} kelime • ${item.date}</div>
           <div class="library-actions">
-            <button class="btn btn-primary" onclick="loadNoteFromLibrary(${idx})">🎯 Soru Üret</button>
-            <button class="btn btn-secondary" onclick="deleteNoteFromLibrary(${idx})">🗑️</button>
+            <button class="btn btn-primary" onclick="loadNoteFromLibrary(${idx})">Soru Üret</button>
+            <button class="btn btn-secondary" onclick="deleteNoteFromLibrary(${idx})">Sil</button>
           </div>
         </div>
       `).join('');
@@ -1535,7 +1702,7 @@ NOT: ${text.slice(0, 14000)}`;
       noteContentInput.value = item.content;
       updateWordCount();
       switchTab('upload');
-      showToast(`📄 "${item.title}" yüklendi!`);
+      showToast(`"${item.title}" yüklendi.`);
     };
 
     window.deleteNoteFromLibrary = function (idx) {
@@ -1549,14 +1716,14 @@ NOT: ${text.slice(0, 14000)}`;
       document.getElementById('statSolved').textContent = state.stats.solved;
       const acc = state.stats.solved > 0 ? Math.round((state.stats.correct / state.stats.solved) * 100) : 0;
       document.getElementById('statAccuracy').textContent = `%${acc}`;
-      document.getElementById('statStreak').textContent = `${state.stats.streak}🔥`;
+      document.getElementById('statStreak').textContent = `${state.stats.streak}`;
     }
 
     function updateEngineStatusUI() {
       const el = document.getElementById('engineStatus');
       el.innerHTML = state.geminiKey
-        ? `<span class="dot online"></span> Gemini AI + Yerel Motor Hazır`
-        : `<span class="dot online"></span> Yerel Akıllı Motor Aktif`;
+        ? `<span class="dot online"></span> Gemini AI + Akıllı Motor Hazır`
+        : `<span class="dot online"></span> Akıllı Kavram Motoru Aktif`;
     }
 
     function bindSettingsModal() {
@@ -1576,14 +1743,14 @@ NOT: ${text.slice(0, 14000)}`;
         localStorage.setItem('notquiz_gemini_model', state.geminiModel);
         updateEngineStatusUI();
         modal.classList.add('hidden');
-        showToast('✅ Ayarlar kaydedildi!');
+        showToast('Ayarlar kaydedildi.');
       });
       document.getElementById('clearApiKeyBtn').addEventListener('click', () => {
         keyInput.value = '';
         state.geminiKey = '';
         localStorage.removeItem('notquiz_gemini_key');
         updateEngineStatusUI();
-        showToast('🗑️ API anahtarı kaldırıldı.');
+        showToast('API anahtarı kaldırıldı.');
       });
     }
 
