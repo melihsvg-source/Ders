@@ -1,0 +1,1593 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NotQuiz — Notlarını Yükle, Sana Soru Sorsun</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- PDF.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- Mammoth.js (.docx) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  <style>
+    :root {
+      --bg-main: #0f111a;
+      --bg-sidebar: #161926;
+      --bg-card: #1c2030;
+      --bg-card-hover: #23283c;
+      --bg-input: #121521;
+      --border-color: #2b3148;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --accent-soft: rgba(99, 102, 241, 0.15);
+      --success: #10b981;
+      --success-soft: rgba(16, 185, 129, 0.16);
+      --danger: #ef4444;
+      --danger-soft: rgba(239, 68, 68, 0.16);
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    .app-shell { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+
+    .sidebar {
+      background-color: var(--bg-sidebar);
+      border-right: 1px solid var(--border-color);
+      padding: 24px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; padding: 0 8px; }
+    .brand-logo {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+    }
+    .brand h1 { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+    .brand-sub { font-size: 12px; color: var(--text-secondary); }
+
+    .nav-menu { display: flex; flex-direction: column; gap: 6px; }
+    .nav-btn {
+      display: flex; align-items: center; gap: 12px; width: 100%;
+      padding: 12px 14px; border-radius: var(--radius-md);
+      border: 1px solid transparent; background: transparent;
+      color: var(--text-secondary); font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s ease; text-align: left;
+    }
+    .nav-btn:hover { background: var(--bg-card); color: var(--text-primary); }
+    .nav-btn.active {
+      background: var(--accent-soft); color: #818cf8;
+      border-color: rgba(99, 102, 241, 0.35);
+    }
+    .nav-icon { font-size: 18px; }
+    .badge {
+      margin-left: auto; background: var(--accent); color: #fff;
+      font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 700;
+    }
+    .badge-danger { background: var(--danger); }
+
+    .sidebar-stats {
+      margin-top: auto; background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md); padding: 14px;
+    }
+    .sidebar-stats h3 {
+      font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--text-secondary); margin-bottom: 10px;
+    }
+    .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .stat-card {
+      background: var(--bg-input); padding: 8px 6px;
+      border-radius: var(--radius-sm); text-align: center;
+    }
+    .stat-val { display: block; font-size: 15px; font-weight: 800; color: var(--text-primary); }
+    .stat-lbl { font-size: 11px; color: var(--text-secondary); }
+
+    .sidebar-footer { display: flex; flex-direction: column; gap: 10px; }
+    .btn-settings {
+      width: 100%; padding: 10px 12px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color); background: var(--bg-card);
+      color: var(--text-primary); font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn-settings:hover { background: var(--bg-card-hover); }
+    .engine-indicator {
+      font-size: 12px; color: var(--text-secondary);
+      display: flex; align-items: center; gap: 8px; padding: 0 4px;
+    }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--success); box-shadow: 0 0 8px var(--success);
+    }
+
+    .main-content { padding: 32px 40px; max-width: 1320px; width: 100%; margin: 0 auto; }
+    .tab-panel { display: none; animation: fadeIn 0.22s ease; }
+    .tab-panel.active { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .panel-header {
+      display: flex; justify-content: space-between;
+      align-items: flex-start; gap: 20px; margin-bottom: 24px;
+    }
+    .panel-header h2 { font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+    .panel-header p { color: var(--text-secondary); font-size: 14.5px; max-width: 680px; }
+    .header-btns { display: flex; gap: 10px; }
+
+    .upload-layout {
+      display: grid; grid-template-columns: 1.35fr 0.9fr;
+      gap: 24px; align-items: start;
+    }
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg); padding: 24px;
+    }
+    .title-input {
+      width: 100%; background: var(--bg-input); border: 1px solid var(--border-color);
+      color: var(--text-primary); padding: 12px 16px; border-radius: var(--radius-md);
+      font-size: 15px; font-weight: 600; margin-bottom: 16px; outline: none;
+    }
+    .title-input:focus { border-color: var(--accent); }
+
+    .dropzone {
+      border: 2px dashed var(--border-color); background: rgba(18, 21, 33, 0.6);
+      border-radius: var(--radius-md); padding: 22px; text-align: center;
+      cursor: pointer; transition: all 0.2s ease; margin-bottom: 16px;
+    }
+    .dropzone:hover, .dropzone.dragover { border-color: var(--accent); background: var(--accent-soft); }
+    .dropzone-content { display: flex; align-items: center; justify-content: center; gap: 16px; text-align: left; }
+    .drop-icon { font-size: 32px; }
+    .dropzone-content p { font-size: 12.5px; color: var(--text-secondary); margin-top: 2px; }
+    .dropzone-content p span { color: #a5b4fc; font-weight: 600; }
+
+    .file-loading {
+      display: flex; align-items: center; justify-content: center;
+      gap: 12px; padding: 8px; color: #a5b4fc; font-weight: 600;
+    }
+    .spinner {
+      width: 20px; height: 20px; border: 3px solid rgba(99, 102, 241, 0.3);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .textarea-toolbar {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 8px; font-size: 13px; color: var(--text-secondary); font-weight: 600;
+    }
+    .toolbar-right { display: flex; align-items: center; gap: 12px; }
+    .btn-text { background: none; border: none; color: #f87171; cursor: pointer; font-size: 12.5px; font-weight: 600; }
+    #noteContentInput {
+      width: 100%; min-height: 330px; background: var(--bg-input);
+      border: 1px solid var(--border-color); border-radius: var(--radius-md);
+      padding: 16px; color: var(--text-primary); font-family: inherit;
+      font-size: 14.5px; line-height: 1.65; resize: vertical; outline: none;
+    }
+    #noteContentInput:focus { border-color: var(--accent); }
+
+    .quiz-config-card h3 { font-size: 18px; margin-bottom: 18px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group > label {
+      display: block; font-size: 13px; font-weight: 700;
+      color: var(--text-secondary); text-transform: uppercase;
+      letter-spacing: 0.04em; margin-bottom: 10px;
+    }
+    .pill-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .pill {
+      padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);
+      background: var(--bg-input); color: var(--text-secondary);
+      font-weight: 600; font-size: 13.5px; cursor: pointer; transition: all 0.15s;
+    }
+    .pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    .checkbox-list { display: flex; flex-direction: column; gap: 10px; }
+    .checkbox-item {
+      display: flex; align-items: center; gap: 10px; background: var(--bg-input);
+      padding: 11px 14px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color); cursor: pointer;
+      font-size: 14px; font-weight: 500;
+    }
+    .checkbox-item input { accent-color: var(--accent); width: 16px; height: 16px; }
+
+    .engine-box { display: flex; flex-direction: column; gap: 10px; }
+    .radio-card {
+      display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px;
+      border-radius: var(--radius-md); border: 1px solid var(--border-color);
+      background: var(--bg-input); cursor: pointer; transition: all 0.2s;
+    }
+    .radio-card.active { border-color: var(--accent); background: var(--accent-soft); }
+    .radio-card input { margin-top: 4px; accent-color: var(--accent); }
+    .radio-card strong { display: block; font-size: 13.5px; margin-bottom: 3px; }
+    .radio-card p { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 8px; padding: 11px 18px; border-radius: var(--radius-md);
+      font-size: 14px; font-weight: 600; border: 1px solid transparent;
+      cursor: pointer; transition: all 0.2s ease;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5); }
+    .btn-secondary { background: var(--bg-input); border-color: var(--border-color); color: var(--text-primary); }
+    .btn-secondary:hover { background: var(--bg-card-hover); }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-large { width: 100%; padding: 15px; font-size: 15.5px; font-weight: 700; }
+
+    .quiz-container { max-width: 820px; margin: 0 auto; }
+    .quiz-topbar { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 14px; }
+    .quiz-topic-badge {
+      display: inline-block; font-size: 12px; font-weight: 700; color: #a5b4fc;
+      background: var(--accent-soft); padding: 4px 10px; border-radius: 999px; margin-bottom: 6px;
+    }
+    .quiz-score-Display { display: flex; gap: 10px; }
+    .score-pill { padding: 6px 14px; border-radius: 999px; font-size: 14px; font-weight: 600; }
+    .correct-pill { background: var(--success-soft); color: #34d399; }
+    .wrong-pill { background: var(--danger-soft); color: #f87171; }
+
+    .progress-bar-track {
+      width: 100%; height: 8px; background: var(--bg-card);
+      border-radius: 999px; overflow: hidden; margin-bottom: 24px;
+    }
+    .progress-bar-fill {
+      height: 100%; background: linear-gradient(90deg, #6366f1, #a855f7);
+      transition: width 0.3s ease;
+    }
+    .question-card { padding: 32px; }
+    .q-type-tag {
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em; color: #cbd5e1; background: var(--bg-input);
+      border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 6px;
+    }
+    .question-Prompt { font-size: 20px; font-weight: 700; margin: 18px 0 24px; line-height: 1.5; }
+    .options-grid { display: flex; flex-direction: column; gap: 12px; }
+    .option-btn {
+      display: flex; align-items: center; gap: 14px; width: 100%; text-align: left;
+      padding: 16px 18px; border-radius: var(--radius-md); background: var(--bg-input);
+      border: 1.5px solid var(--border-color); color: var(--text-primary);
+      font-size: 15.5px; font-weight: 500; cursor: pointer; transition: all 0.16s ease;
+    }
+    .option-btn:hover:not(:disabled) { border-color: var(--accent); background: var(--bg-card-hover); }
+    .option-letter {
+      width: 32px; height: 32px; border-radius: 8px; background: var(--bg-card);
+      border: 1px solid var(--border-color); display: flex; align-items: center;
+      justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0;
+    }
+    .option-btn.correct { border-color: var(--success); background: var(--success-soft); }
+    .option-btn.correct .option-letter { background: var(--success); color: #fff; border-color: var(--success); }
+    .option-btn.wrong { border-color: var(--danger); background: var(--danger-soft); }
+    .option-btn.wrong .option-letter { background: var(--danger); color: #fff; border-color: var(--danger); }
+
+    .text-answer-box { display: flex; flex-direction: column; gap: 12px; }
+    .text-answer-box input {
+      width: 100%; padding: 16px; border-radius: var(--radius-md);
+      border: 1.5px solid var(--border-color); background: var(--bg-input);
+      color: var(--text-primary); font-size: 16px; outline: none;
+    }
+    .text-answer-box input:focus { border-color: var(--accent); }
+    .text-answer-actions { display: flex; gap: 10px; }
+
+    .classic-eval-box {
+      margin-top: 16px; padding: 16px; border-radius: var(--radius-md);
+      background: var(--bg-input); border: 1px solid var(--border-color);
+    }
+    .classic-eval-box p { font-size: 14px; color: var(--text-secondary); margin-bottom: 12px; }
+    .eval-buttons { display: flex; gap: 12px; }
+
+    .feedback-box {
+      margin-top: 22px; padding: 18px; border-radius: var(--radius-md);
+      border-left: 4px solid var(--accent); background: var(--bg-input);
+    }
+    .feedback-box.is-correct { border-left-color: var(--success); background: rgba(16, 185, 129, 0.08); }
+    .feedback-box.is-wrong { border-left-color: var(--danger); background: rgba(239, 68, 68, 0.08); }
+    .feedback-header { font-weight: 800; font-size: 15px; margin-bottom: 6px; }
+    .feedback-explanation { font-size: 14.5px; color: var(--text-primary); margin-bottom: 8px; }
+    .feedback-source {
+      font-size: 13px; color: var(--text-secondary); font-style: italic;
+      border-top: 1px solid var(--border-color); padding-top: 8px;
+    }
+    .question-footer {
+      display: flex; justify-content: space-between; margin-top: 28px;
+      padding-top: 20px; border-top: 1px solid var(--border-color);
+    }
+
+    .quiz-result-card { max-width: 640px; margin: 20px auto; text-align: center; padding: 40px 32px; }
+    .result-trophy { font-size: 64px; margin-bottom: 12px; }
+    .result-stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 28px 0; }
+    .res-box {
+      background: var(--bg-input); border: 1px solid var(--border-color);
+      padding: 18px; border-radius: var(--radius-md);
+    }
+    .res-num { display: block; font-size: 28px; font-weight: 800; color: #a5b4fc; }
+    .res-label { font-size: 13px; color: var(--text-secondary); }
+    .result-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+
+    .flashcard-arena { max-width: 680px; margin: 20px auto; text-align: center; }
+    .flashcard-counter { font-size: 14px; font-weight: 700; color: var(--text-secondary); margin-bottom: 14px; }
+    .flashcard-scene { perspective: 1200px; height: 340px; cursor: pointer; margin-bottom: 24px; }
+    .flashcard-inner {
+      width: 100%; height: 100%; position: relative;
+      transform-style: preserve-3d; transition: transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1);
+    }
+    .flashcard-inner.is-flipped { transform: rotateY(180deg); }
+    .flashcard-face {
+      position: absolute; inset: 0; backface-visibility: hidden;
+      border-radius: var(--radius-lg); border: 1.5px solid var(--border-color);
+      background: linear-gradient(160deg, #1e2235, #151826); padding: 36px;
+      display: flex; flex-direction: column; justify-content: center;
+      align-items: center; box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35);
+    }
+    .flashcard-back {
+      transform: rotateY(180deg); border-color: var(--accent);
+      background: linear-gradient(160deg, #232742, #171b2e);
+    }
+    .fc-hint {
+      position: absolute; top: 20px; font-size: 11px;
+      font-weight: 700; letter-spacing: 0.08em; color: var(--text-secondary);
+    }
+    .flashcard-face p { font-size: 22px; font-weight: 700; line-height: 1.5; }
+    .flashcard-controls { display: flex; justify-content: center; gap: 14px; }
+
+    .mistakes-list, .library-grid { display: grid; gap: 16px; }
+    .library-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+    .mistake-item, .library-card {
+      background: var(--bg-card); border: 1px solid var(--border-color);
+      border-radius: var(--radius-md); padding: 20px;
+    }
+    .mistake-item h4 { font-size: 16px; margin-bottom: 8px; }
+    .mistake-ans { font-size: 14px; color: #34d399; font-weight: 600; }
+    .library-card h4 { font-size: 17px; margin-bottom: 6px; }
+    .library-meta { font-size: 12.5px; color: var(--text-secondary); margin-bottom: 14px; }
+    .library-actions { display: flex; gap: 8px; }
+
+    .empty-state {
+      text-align: center; padding: 64px 20px; background: var(--bg-card);
+      border: 1px dashed var(--border-color); border-radius: var(--radius-lg);
+    }
+    .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state h3 { font-size: 20px; margin-bottom: 6px; }
+    .empty-state p { color: var(--text-secondary); margin-bottom: 20px; }
+
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(8, 10, 16, 0.78);
+      backdrop-filter: blur(4px); display: flex; align-items: center;
+      justify-content: center; z-index: 1000;
+    }
+    .modal-card {
+      background: var(--bg-card); border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg); width: 92%; max-width: 500px; padding: 24px;
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .btn-close { background: none; border: none; color: var(--text-secondary); font-size: 18px; cursor: pointer; }
+    .modal-desc { font-size: 13.5px; color: var(--text-secondary); margin-bottom: 18px; }
+    .text-input {
+      width: 100%; padding: 12px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color); background: var(--bg-input);
+      color: var(--text-primary); font-size: 14px;
+    }
+    .help-text { display: block; margin-top: 6px; font-size: 12px; color: var(--text-secondary); }
+    .help-text a { color: #818cf8; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+
+    .toast-container {
+      position: fixed; bottom: 24px; right: 24px;
+      display: flex; flex-direction: column; gap: 10px; z-index: 2000;
+    }
+    .toast {
+      background: #1e293b; border: 1px solid var(--accent); color: #fff;
+      padding: 12px 18px; border-radius: var(--radius-md); font-size: 14px;
+      font-weight: 600; box-shadow: 0 10px 25px rgba(0,0,0,0.4); animation: fadeIn 0.2s ease;
+    }
+    .hidden { display: none !important; }
+
+    @media (max-width: 980px) {
+      .app-shell { grid-template-columns: 1fr; }
+      .sidebar { height: auto; position: static; }
+      .upload-layout { grid-template-columns: 1fr; }
+      .main-content { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">🧠</div>
+        <div>
+          <h1>NotQuiz</h1>
+          <span class="brand-sub">Akıllı Ders Çalışma Asistanı</span>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <button class="nav-btn active" data-tab="upload">
+          <span class="nav-icon">📄</span>
+          <span>Not Yükle & Soru Üret</span>
+        </button>
+        <button class="nav-btn" data-tab="quiz" id="navQuizBtn">
+          <span class="nav-icon">🎯</span>
+          <span>Soru Çöz (Quiz)</span>
+          <span class="badge hidden" id="quizCountBadge">0</span>
+        </button>
+        <button class="nav-btn" data-tab="flashcards">
+          <span class="nav-icon">🃏</span>
+          <span>Bilgi Kartları (Flashcard)</span>
+        </button>
+        <button class="nav-btn" data-tab="mistakes">
+          <span class="nav-icon">🔄</span>
+          <span>Yanlışlarım</span>
+          <span class="badge badge-danger hidden" id="mistakeCountBadge">0</span>
+        </button>
+        <button class="nav-btn" data-tab="library">
+          <span class="nav-icon">📚</span>
+          <span>Kayıtlı Notlarım</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-stats">
+        <h3>Çalışma İstatistiği</h3>
+        <div class="stat-grid">
+          <div class="stat-card">
+            <span class="stat-val" id="statSolved">0</span>
+            <span class="stat-lbl">Çözülen</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-val" id="statAccuracy">%0</span>
+            <span class="stat-lbl">Başarı</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-val" id="statStreak">0🔥</span>
+            <span class="stat-lbl">Seri</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button class="btn-settings" id="openSettingsBtn">
+          ⚙️ Yapay Zeka (Gemini API) Ayarı
+        </button>
+        <div class="engine-indicator" id="engineStatus">
+          <span class="dot online"></span> Yerel Akıllı Motor Aktif
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <section class="tab-panel active" id="tab-upload">
+        <header class="panel-header">
+          <div>
+            <h2>Notlarını Yükle, Seni Sınav Yapsın 🚀</h2>
+            <p>PDF, Word (.docx), TXT dosyası yükle veya ders notunu yapıştır. Sistem notundaki önemli yerleri analiz edip sana özel sorular çıkarsın.</p>
+          </div>
+          <button class="btn btn-secondary" id="loadSampleBtn">✨ Örnek Ders Notu Yükle</button>
+        </header>
+
+        <div class="upload-layout">
+          <div class="card note-input-card">
+            <div class="input-header">
+              <input type="text" id="noteTitleInput" class="title-input" placeholder="Ders / Konu Başlığı (Örn: Biyoloji - Hücre Bölünmesi)" />
+            </div>
+
+            <div class="dropzone" id="dropzone">
+              <input type="file" id="fileInput" accept=".pdf,.docx,.txt,.md" hidden />
+              <div class="dropzone-content">
+                <div class="drop-icon">📂</div>
+                <div>
+                  <strong>Dosya seçmek için tıkla</strong> veya buraya sürükle
+                  <p>Desteklenenler: <span>PDF</span>, <span>Word (.docx)</span>, <span>TXT</span>, <span>Markdown</span></p>
+                </div>
+              </div>
+              <div id="fileLoadingState" class="file-loading hidden">
+                <div class="spinner"></div>
+                <span id="fileLoadingText">Dosya okunuyor...</span>
+              </div>
+            </div>
+
+            <div class="textarea-wrapper">
+              <div class="textarea-toolbar">
+                <span>Ders Notu İçeriği</span>
+                <div class="toolbar-right">
+                  <span id="wordCountInfo">0 kelime</span>
+                  <button class="btn-text" id="clearNoteBtn">Temizle</button>
+                </div>
+              </div>
+              <textarea id="noteContentInput" placeholder="Ders notlarını buraya yapıştırabilir veya yukarıdan dosya yükleyebilirsin..."></textarea>
+            </div>
+          </div>
+
+          <div class="card quiz-config-card">
+            <h3>🎯 Sınav Ayarları</h3>
+
+            <div class="form-group">
+              <label>Soru Sayısı</label>
+              <div class="pill-selector" id="questionCountSelector">
+                <button type="button" class="pill" data-count="5">5 Soru</button>
+                <button type="button" class="pill active" data-count="10">10 Soru</button>
+                <button type="button" class="pill" data-count="15">15 Soru</button>
+                <button type="button" class="pill" data-count="20">20 Soru</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Soru Tipleri</label>
+              <div class="checkbox-list">
+                <label class="checkbox-item">
+                  <input type="checkbox" id="typeMcq" checked />
+                  <span>Çoktan Seçmeli Test (4 Şıklı)</span>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" id="typeBlank" checked />
+                  <span>Boşluk Doldurma (Kavram Bulma)</span>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" id="typeTf" checked />
+                  <span>Doğru / Yanlış Soruları</span>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" id="typeClassic" checked />
+                  <span>Klasik Açık Uçlu (Kendi Cevabını Kontrol Et)</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Soru Üretim Motoru</label>
+              <div class="engine-box" id="engineSelectorBox">
+                <label class="radio-card active" id="radioLocalCard">
+                  <input type="radio" name="engineMode" value="local" checked />
+                  <div>
+                    <strong>⚡ Hızlı Akıllı Analiz (Ücretsiz & Çevrimdışı)</strong>
+                    <p>Notundaki tanımları, kavramları, sayıları ve önemli cümleleri analiz ederek anında soru üretir.</p>
+                  </div>
+                </label>
+                <label class="radio-card" id="radioAiCard">
+                  <input type="radio" name="engineMode" value="ai" />
+                  <div>
+                    <strong>✨ Gemini Yapay Zeka (Derin Yorum Soruları)</strong>
+                    <p>Google Gemini API anahtarınla nottan öğretmen kalitesinde yorum ve öncüllü sorular üretir.</p>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <button class="btn btn-primary btn-large" id="generateQuizBtn">
+              🚀 Notlardan Soru Üret ve Başla
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-quiz">
+        <div id="quizEmptyState" class="empty-state">
+          <div class="empty-icon">📝</div>
+          <h3>Henüz Aktif Bir Sınav Yok</h3>
+          <p>Önce ders notunu yükleyip soru üretmelisin.</p>
+          <button class="btn btn-primary" data-goto="upload">Not Yüklemeye Git</button>
+        </div>
+
+        <div id="quizActiveContainer" class="quiz-container hidden">
+          <div class="quiz-topbar">
+            <div>
+              <span class="quiz-topic-badge" id="activeQuizTitle">Ders Notu</span>
+              <h3 id="questionProgressText">Soru 1 / 10</h3>
+            </div>
+            <div class="quiz-score-Display">
+              <span class="score-pill correct-pill">✓ <b id="liveCorrect">0</b></span>
+              <span class="score-pill wrong-pill">✗ <b id="liveWrong">0</b></span>
+            </div>
+          </div>
+
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="quizProgressBar" style="width: 10%"></div>
+          </div>
+
+          <div class="card question-card">
+            <div class="question-meta">
+              <span class="q-type-tag" id="qTypeTag">Çoktan Seçmeli</span>
+            </div>
+            <div class="question-Prompt" id="questionPrompt"></div>
+            <div id="optionsContainer" class="options-grid"></div>
+
+            <div id="textAnswerContainer" class="text-answer-box hidden">
+              <input type="text" id="userTextAnswer" placeholder="Cevabını buraya yaz ve Enter'a bas..." autocomplete="off" />
+              <div class="text-answer-actions">
+                <button class="btn btn-primary" id="submitTextAnswerBtn">Cevabı Kontrol Et</button>
+                <button class="btn btn-secondary" id="hintBtn">💡 İpucu Göster</button>
+              </div>
+            </div>
+
+            <div id="classicSelfEvalContainer" class="classic-eval-box hidden">
+              <p>Kendi cevabını aşağıdaki doğru cevapla karşılaştır, doğru bildiysen işaretle:</p>
+              <div class="eval-buttons">
+                <button class="btn btn-success" id="selfEvalCorrectBtn">✅ Doğru Bildim</button>
+                <button class="btn btn-danger" id="selfEvalWrongBtn">❌ Bilemedim / Eksik</button>
+              </div>
+            </div>
+
+            <div id="feedbackBox" class="feedback-box hidden">
+              <div class="feedback-header" id="feedbackHeader"></div>
+              <div class="feedback-explanation" id="feedbackExplanation"></div>
+              <div class="feedback-source" id="feedbackSource"></div>
+            </div>
+
+            <div class="question-footer">
+              <button class="btn btn-secondary" id="prevQuestionBtn">← Önceki</button>
+              <button class="btn btn-primary" id="nextQuestionBtn">Sonraki Soru →</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="quizResultContainer" class="card quiz-result-card hidden">
+          <div class="result-trophy" id="resultEmoji">🏆</div>
+          <h2 id="resultHeadline">Tebrikler! Sınavı Tamamladın</h2>
+          <p id="resultSubtext">Notların üzerindeki hakimiyetin harika görünüyor.</p>
+
+          <div class="result-stats-row">
+            <div class="res-box">
+              <span class="res-num" id="resScorePercent">%80</span>
+              <span class="res-label">Başarı Oranı</span>
+            </div>
+            <div class="res-box">
+              <span class="res-num" id="resCorrectCount">8</span>
+              <span class="res-label">Doğru</span>
+            </div>
+            <div class="res-box">
+              <span class="res-num" id="resWrongCount">2</span>
+              <span class="res-label">Yanlış</span>
+            </div>
+          </div>
+
+          <div class="result-actions">
+            <button class="btn btn-primary" id="retryWrongBtn">🔄 Sadece Yanlışlarımı Çöz</button>
+            <button class="btn btn-secondary" id="regenerateQuizBtn">🎲 Aynı Nottan Yeni Sorular Üret</button>
+            <button class="btn btn-secondary" data-goto="upload">📄 Yeni Not Yükle</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-flashcards">
+        <header class="panel-header">
+          <div>
+            <h2>🃏 Bilgi Kartları (Flashcard)</h2>
+            <p>Notundaki önemli kavramları kartları çevirerek hızlıca tekrar et.</p>
+          </div>
+        </header>
+
+        <div id="flashcardEmptyState" class="empty-state">
+          <div class="empty-icon">🃏</div>
+          <h3>Henüz Bilgi Kartı Yok</h3>
+          <p>Bir ders notu yükleyip soru ürettiğinde bilgi kartların otomatik hazırlanır.</p>
+          <button class="btn btn-primary" data-goto="upload">Not Yükle</button>
+        </div>
+
+        <div id="flashcardContainer" class="flashcard-arena hidden">
+          <div class="flashcard-counter" id="flashcardCounter">Kart 1 / 10</div>
+
+          <div class="flashcard-scene" id="flashcardScene">
+            <div class="flashcard-inner" id="flashcardInner">
+              <div class="flashcard-face flashcard-front">
+                <span class="fc-hint">SORU / KAVRAM (Çevirmek için tıkla)</span>
+                <p id="fcFrontText">Kavram</p>
+              </div>
+              <div class="flashcard-face flashcard-back">
+                <span class="fc-hint">CEVAP / AÇIKLAMA</span>
+                <p id="fcBackText">Açıklama</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flashcard-controls">
+            <button class="btn btn-secondary" id="fcPrevBtn">← Önceki Kart</button>
+            <button class="btn btn-primary" id="fcFlipBtn">🔄 Kartı Çevir</button>
+            <button class="btn btn-secondary" id="fcNextBtn">Sonraki Kart →</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-mistakes">
+        <header class="panel-header">
+          <div>
+            <h2>🔄 Yanlış Yaptığım Sorular</h2>
+            <p>Yanlış cevapladığın sorular burada birikir. Öğrenene kadar tekrar çözebilirsin.</p>
+          </div>
+          <div class="header-btns">
+            <button class="btn btn-primary" id="practiceAllMistakesBtn">🎯 Yanlışlarımdan Sınav Başlat</button>
+            <button class="btn btn-secondary" id="clearMistakesBtn">🗑️ Temizle</button>
+          </div>
+        </header>
+        <div id="mistakesList" class="mistakes-list"></div>
+      </section>
+
+      <section class="tab-panel" id="tab-library">
+        <header class="panel-header">
+          <div>
+            <h2>📚 Kayıtlı Ders Notlarım</h2>
+            <p>Daha önce yüklediğin notlar tarayıcında güvende tutulur.</p>
+          </div>
+        </header>
+        <div id="libraryGrid" class="library-grid"></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop hidden" id="settingsModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>⚙️ Yapay Zeka (Google Gemini API) Ayarları</h3>
+        <button class="btn-close" id="closeSettingsBtn">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          Uygulama varsayılan olarak <strong>API anahtarı gerektirmeden</strong> yerel akıllı soru motoruyla çalışır.
+          Ancak öğretmen tarzı derin yorum soruları istersen ücretsiz bir <strong>Google Gemini API Anahtarı</strong> girebilirsin.
+        </p>
+        <div class="form-group">
+          <label>Gemini API Key (İsteğe Bağlı)</label>
+          <input type="password" id="geminiApiKeyInput" class="text-input" placeholder="AIzaSy..." />
+          <small class="help-text">
+            Ücretsiz anahtar almak için: <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio</a>
+          </small>
+        </div>
+        <div class="form-group">
+          <label>Gemini Modeli</label>
+          <select id="geminiModelSelect" class="text-input">
+            <option value="gemini-2.5-flash">gemini-2.5-flash (Önerilen)</option>
+            <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+            <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="clearApiKeyBtn">Anahtarı Sil</button>
+        <button class="btn btn-primary" id="saveSettingsBtn">Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script>
+    if (window.pdfjsLib) {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+
+    const state = {
+      questionCount: 10,
+      engineMode: 'local',
+      activeQuiz: { title: '', rawText: '', questions: [], currentIndex: 0, correct: 0, wrong: 0, answeredMap: {} },
+      flashcards: [],
+      flashcardIndex: 0,
+      mistakes: JSON.parse(localStorage.getItem('notquiz_mistakes') || '[]'),
+      library: JSON.parse(localStorage.getItem('notquiz_library') || '[]'),
+      stats: JSON.parse(localStorage.getItem('notquiz_stats') || '{"solved":0,"correct":0,"streak":0}'),
+      geminiKey: localStorage.getItem('notquiz_gemini_key') || '',
+      geminiModel: localStorage.getItem('notquiz_gemini_model') || 'gemini-2.5-flash'
+    };
+
+    const SAMPLE_NOTE = {
+      title: 'Biyoloji — Hücre ve Organeller Ders Notu',
+      content: `Mitokondri: Hücrede oksijenli solunum yaparak ATP (enerji) üreten çift zarlı organeldir. Enerji ihtiyacı fazla olan kas, karaciğer ve sinir hücrelerinde mitokondri sayısı oldukça fazladır. Mitokondrinin kendine ait DNA, RNA ve ribozomu bulunur; bu sayede çekirdek kontrolünde kendini eşleyebilir.
+
+Ribozom: Hücrede protein sentezinin gerçekleştiği zarsız organeldir. Tüm canlı hücrelerde (bakteri, arke, bitki, hayvan) ortak olarak bulunan tek organeldir. Ribozom, rRNA ve proteinden (nükleoprotein yapı) oluşur.
+
+Lizozom: Hücre içi sindirimden sorumlu tek zarlı organeldir. Gelişmiş bitki ve mantar hücrelerinde lizozom bulunmaz. Lizozom zarının yırtılması sonucu hücrenin kendi kendini sindirmesine otoliz denir.
+
+Golgi Cisimciği: Hücrede salgılama, paketleme ve zar fabrikası görevi yapan tek zarlı organeldir. Glikoprotein ve lipoprotein sentezinde görev alır. Tükürük bezi ve mukus üreten hücrelerde Golgi cisimciği çok gelişmiştir.
+
+Endoplazmik Retikulum: Hücre zarı ile çekirdek zarı arasında uzanan kanalcık sistemidir; madde iletimini sağlar. Üzerinde ribozom bulunanlara Granüllü Endoplazmik Retikulum, bulunmayanlara ise Granülsüz Endoplazmik Retikulum denir.
+
+Kloroplast: Bitki hücrelerinde fotosentez yaparak inorganik maddelerden organik besin ve oksijen üreten çift zarlı organeldir. Çift zarlıdır ve kendine ait DNA, RNA ve ribozomu vardır.
+
+Sentrozom: Hayvan hücrelerinde hücre bölünmesi sırasında iğ ipliklerini oluşturan zarsız organeldir. Sinir hücreleri, olgun alyuvarlar, yumurta hücresi ve gelişmiş bitki hücrelerinde sentrozom bulunmaz.`
+    };
+
+    const navButtons = document.querySelectorAll('.nav-btn');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+    const noteTitleInput = document.getElementById('noteTitleInput');
+    const noteContentInput = document.getElementById('noteContentInput');
+    const wordCountInfo = document.getElementById('wordCountInfo');
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const fileLoadingState = document.getElementById('fileLoadingState');
+    const fileLoadingText = document.getElementById('fileLoadingText');
+
+    function init() {
+      bindNavigation();
+      bindUploadEvents();
+      bindQuizEvents();
+      bindFlashcardEvents();
+      bindSettingsModal();
+      updateStatsUI();
+      renderMistakes();
+      renderLibrary();
+      updateEngineStatusUI();
+    }
+
+    function showToast(msg) {
+      const container = document.getElementById('toastContainer');
+      const el = document.createElement('div');
+      el.className = 'toast';
+      el.textContent = msg;
+      container.appendChild(el);
+      setTimeout(() => el.remove(), 3400);
+    }
+
+    function switchTab(tabId) {
+      navButtons.forEach((btn) => btn.classList.toggle('active', btn.dataset.tab === tabId));
+      tabPanels.forEach((panel) => panel.classList.toggle('active', panel.id === `tab-${tabId}`));
+    }
+
+    function bindNavigation() {
+      navButtons.forEach((btn) => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+      document.querySelectorAll('[data-goto]').forEach((btn) =>
+        btn.addEventListener('click', () => switchTab(btn.dataset.goto))
+      );
+    }
+
+    function updateWordCount() {
+      const text = noteContentInput.value.trim();
+      const count = text ? text.split(/\s+/).length : 0;
+      wordCountInfo.textContent = `${count} kelime`;
+    }
+
+    function bindUploadEvents() {
+      noteContentInput.addEventListener('input', updateWordCount);
+      document.getElementById('clearNoteBtn').addEventListener('click', () => {
+        noteTitleInput.value = '';
+        noteContentInput.value = '';
+        updateWordCount();
+      });
+      document.getElementById('loadSampleBtn').addEventListener('click', () => {
+        noteTitleInput.value = SAMPLE_NOTE.title;
+        noteContentInput.value = SAMPLE_NOTE.content;
+        updateWordCount();
+        showToast('✨ Örnek Biyoloji ders notu yüklendi!');
+      });
+
+      document.querySelectorAll('#questionCountSelector .pill').forEach((pill) => {
+        pill.addEventListener('click', () => {
+          document.querySelectorAll('#questionCountSelector .pill').forEach((p) => p.classList.remove('active'));
+          pill.classList.add('active');
+          state.questionCount = parseInt(pill.dataset.count, 10);
+        });
+      });
+
+      document.querySelectorAll('input[name="engineMode"]').forEach((radio) => {
+        radio.addEventListener('change', (e) => {
+          state.engineMode = e.target.value;
+          document.getElementById('radioLocalCard').classList.toggle('active', state.engineMode === 'local');
+          document.getElementById('radioAiCard').classList.toggle('active', state.engineMode === 'ai');
+          if (state.engineMode === 'ai' && !state.geminiKey) {
+            document.getElementById('settingsModal').classList.remove('hidden');
+          }
+        });
+      });
+
+      dropzone.addEventListener('click', () => fileInput.click());
+      dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+      dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+      dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) handleFileUpload(e.dataTransfer.files[0]);
+      });
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) handleFileUpload(e.target.files[0]);
+      });
+
+      document.getElementById('generateQuizBtn').addEventListener('click', handleGenerateQuiz);
+    }
+
+    async function handleFileUpload(file) {
+      const ext = file.name.split('.').pop().toLowerCase();
+      const baseName = file.name.replace(/\.[^/.]+$/, '');
+      if (!noteTitleInput.value.trim()) noteTitleInput.value = baseName;
+
+      fileLoadingState.classList.remove('hidden');
+      fileLoadingText.textContent = `${file.name} okunuyor...`;
+
+      try {
+        let extractedText = '';
+        if (ext === 'pdf') extractedText = await extractTextFromPDF(file);
+        else if (ext === 'docx') extractedText = await extractTextFromDOCX(file);
+        else if (ext === 'txt' || ext === 'md') extractedText = await file.text();
+        else throw new Error('Desteklenmeyen dosya uzantısı.');
+
+        if (!extractedText || extractedText.trim().length < 20) {
+          throw new Error('Dosyadan yeterli metin okunamadı.');
+        }
+        noteContentInput.value = extractedText.trim();
+        updateWordCount();
+        showToast(`📄 "${file.name}" başarıyla aktarıldı!`);
+      } catch (err) {
+        showToast(`⚠️ Hata: ${err.message}`);
+      } finally {
+        fileLoadingState.classList.add('hidden');
+        fileInput.value = '';
+      }
+    }
+
+    async function extractTextFromPDF(file) {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      let fullText = '';
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        fullText += content.items.map((item) => item.str).join(' ') + '\n\n';
+      }
+      return fullText;
+    }
+
+    async function extractTextFromDOCX(file) {
+      const arrayBuffer = await file.arrayBuffer();
+      const result = await window.mammoth.extractRawText({ arrayBuffer });
+      return result.value;
+    }
+
+    async function handleGenerateQuiz() {
+      const rawText = noteContentInput.value.trim();
+      const title = noteTitleInput.value.trim() || 'Ders Notu Çalışması';
+      if (rawText.length < 40) {
+        showToast('⚠️ Soru üretmek için lütfen biraz daha uzun bir ders notu girin veya Örnek Not yükleyin.');
+        return;
+      }
+
+      const allowedTypes = [];
+      if (document.getElementById('typeMcq').checked) allowedTypes.push('mcq');
+      if (document.getElementById('typeBlank').checked) allowedTypes.push('blank');
+      if (document.getElementById('typeTf').checked) allowedTypes.push('tf');
+      if (document.getElementById('typeClassic').checked) allowedTypes.push('classic');
+
+      if (allowedTypes.length === 0) {
+        showToast('⚠️ Lütfen en az bir soru tipi seçin.');
+        return;
+      }
+
+      saveNoteToLibrary(title, rawText);
+      const btn = document.getElementById('generateQuizBtn');
+      const originalBtnText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '⏳ Sorular Hazırlanıyor...';
+
+      try {
+        const generated = (state.engineMode === 'ai' && state.geminiKey)
+          ? await generateWithGeminiAI(title, rawText, state.questionCount, allowedTypes)
+          : generateSmartLocalQuiz(title, rawText, state.questionCount, allowedTypes);
+
+        if (!generated.questions || generated.questions.length === 0) {
+          throw new Error('Bu metinden soru çıkarılamadı.');
+        }
+
+        startQuizSession(title, rawText, generated.questions, generated.flashcards);
+        showToast(`🎯 ${generated.questions.length} soru hazırlandı!`);
+        switchTab('quiz');
+      } catch (err) {
+        showToast(`⚠️ ${err.message}`);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalBtnText;
+      }
+    }
+
+    function generateSmartLocalQuiz(title, text, desiredCount, allowedTypes) {
+      const cleanText = text.replace(/\r\n/g, '\n');
+      const pairs = [];
+      const lines = cleanText.split(/\n+/).map((l) => l.trim()).filter(Boolean);
+
+      for (const line of lines) {
+        const colonMatch = line.match(/^([A-ZÇĞİÖŞÜa-zçğıöşü0-9\s()]{2,42})\s*[:–-]\s*(.{20,})$/);
+        if (colonMatch) {
+          const term = colonMatch[1].replace(/^[•*-]\s*/, '').trim();
+          const firstSentence = colonMatch[2].split(/(?<=[.!?])\s+/)[0].trim();
+          if (term.split(/\s+/).length <= 5 && firstSentence.length >= 20) {
+            pairs.push({ term, definition: firstSentence, source: line });
+          }
+        }
+      }
+
+      const rawSentences = cleanText
+        .replace(/\n+/g, ' ')
+        .split(/(?<=[.!?])\s+/)
+        .map((s) => s.trim())
+        .filter((s) => s.length >= 30 && s.length <= 260);
+
+      for (const sent of rawSentences) {
+        const denirMatch = sent.match(/(.{20,})\s+([A-ZÇĞİÖŞÜa-zçğıöşü\s]{3,30})\s+(denir|olarak adlandırılır|adı verilir)\.?$/i);
+        if (denirMatch) {
+          const defPart = denirMatch[1].trim();
+          const termPart = denirMatch[2].trim();
+          if (termPart.split(/\s+/).length <= 4 && !pairs.some((p) => p.term.toLowerCase() === termPart.toLowerCase())) {
+            pairs.push({ term: capitalizeWords(termPart), definition: defPart, source: sent });
+          }
+        }
+      }
+
+      const stopWords = new Set([
+        'için', 'olan', 'olarak', 'ancak', 'fakat', 'veya', 'göre', 'kadar',
+        'sonra', 'önce', 'üzerinde', 'içinde', 'arasında', 'tarafından', 'birlikte',
+        'olup', 'olur', 'vardır', 'yoktur', 'bulunur', 'bulunmaz', 'denir', 'ise',
+        'daha', 'çok', 'gibi', 'böylece', 'dolayı', 'buna', 'bunlar', 'şekilde'
+      ]);
+
+      const wordFreq = {};
+      const candidateTerms = new Set(pairs.map((p) => p.term));
+
+      rawSentences.forEach((s) => {
+        const words = s.match(/[A-ZÇĞİÖŞÜa-zçğıöşü0-9-]{4,}/g) || [];
+        words.forEach((w) => {
+          const lower = w.toLowerCase();
+          if (!stopWords.has(lower)) {
+            wordFreq[w] = (wordFreq[w] || 0) + 1;
+            if (/^[A-ZÇĞİÖŞÜ]/.test(w) && w.length >= 5) candidateTerms.add(w);
+          }
+        });
+      });
+
+      Object.entries(wordFreq).sort((a, b) => b[1] - a[1]).slice(0, 30).forEach(([w]) => candidateTerms.add(w));
+      const allTermPool = Array.from(candidateTerms);
+
+      const flashcards = pairs.map((p) => ({ front: p.term, back: p.definition }));
+      for (const sent of rawSentences) {
+        if (flashcards.length >= 15) break;
+        const keyWord = findBestKeywordInSentence(sent, stopWords);
+        if (keyWord && !flashcards.some((f) => f.front.toLowerCase() === keyWord.toLowerCase())) {
+          flashcards.push({ front: `${capitalizeWords(keyWord)} nedir?`, back: sent });
+        }
+      }
+
+      const questionPool = [];
+      for (const p of pairs) {
+        if (allowedTypes.includes('mcq')) {
+          const distractors = pickDistractors(p.term, pairs.map((x) => x.term).concat(allTermPool), 3);
+          if (distractors.length === 3) {
+            const cleanDef = maskTermInText(p.definition, p.term);
+            questionPool.push({
+              type: 'mcq',
+              prompt: `"${cleanDef}"\n\nNotlara göre yukarıda özelliği verilen kavram aşağıdakilerden hangisidir?`,
+              options: shuffleArray([p.term, ...distractors]),
+              answer: p.term,
+              explanation: `Doğru cevap "${p.term}" kavramıdır.`,
+              source: p.source
+            });
+          }
+        }
+        if (allowedTypes.includes('blank')) {
+          const cleanDef = maskTermInText(p.definition, p.term);
+          questionPool.push({
+            type: 'blank',
+            prompt: `Boşluğu uygun kavramla doldurun:\n\n"_______ : ${cleanDef}"`,
+            answer: p.term,
+            explanation: `Bu tanım "${p.term}" kavramına aittir.`,
+            source: p.source
+          });
+        }
+        if (allowedTypes.includes('classic')) {
+          questionPool.push({
+            type: 'classic',
+            prompt: `Ders notuna göre "${p.term}" nedir ve temel görevi/özelliği nedir?`,
+            answer: p.definition,
+            explanation: `Notlardaki tam karşılığı: ${p.definition}`,
+            source: p.source
+          });
+        }
+      }
+
+      for (const sent of rawSentences) {
+        const keyword = findBestKeywordInSentence(sent, stopWords);
+        if (!keyword) continue;
+        const maskedSent = maskTermInText(sent, keyword);
+        if (maskedSent === sent) continue;
+
+        if (allowedTypes.includes('mcq')) {
+          const distractors = pickDistractors(keyword, allTermPool, 3);
+          if (distractors.length === 3) {
+            questionPool.push({
+              type: 'mcq',
+              prompt: `Notlardaki bilgiye göre aşağıdaki cümlede boş bırakılan yere hangisi gelmelidir?\n\n"${maskedSent}"`,
+              options: shuffleArray([keyword, ...distractors]),
+              answer: keyword,
+              explanation: `Cümlede boş bırakılan anahtar kavram: "${keyword}"`,
+              source: sent
+            });
+          }
+        }
+        if (allowedTypes.includes('blank')) {
+          questionPool.push({
+            type: 'blank',
+            prompt: `Notlara göre cümledeki boşluğu doldurun:\n\n"${maskedSent}"`,
+            answer: keyword,
+            explanation: `Doğru anahtar kelime: "${keyword}"`,
+            source: sent
+          });
+        }
+        if (allowedTypes.includes('tf')) {
+          if (Math.random() > 0.48) {
+            questionPool.push({
+              type: 'tf',
+              prompt: `Doğru mu, Yanlış mı?\n\n"${sent}"`,
+              options: ['Doğru', 'Yanlış'],
+              answer: 'Doğru',
+              explanation: 'Bu ifade ders notlarında yer alan doğru bir bilgidir.',
+              source: sent
+            });
+          } else {
+            const replacement = pickDistractors(keyword, allTermPool, 1)[0];
+            if (replacement) {
+              const fakeSent = sent.replace(new RegExp(escapeRegExp(keyword), 'i'), replacement);
+              if (fakeSent !== sent) {
+                questionPool.push({
+                  type: 'tf',
+                  prompt: `Doğru mu, Yanlış mı?\n\n"${fakeSent}"`,
+                  options: ['Doğru', 'Yanlış'],
+                  answer: 'Yanlış',
+                  explanation: `Yanlış! Cümlede "${replacement}" yerine "${keyword}" olmalıdır.`,
+                  source: sent
+                });
+              }
+            }
+          }
+        }
+      }
+
+      const shuffled = shuffleArray(questionPool);
+      const selected = [];
+      const usedSources = new Set();
+      for (const q of shuffled) {
+        if (selected.length >= desiredCount) break;
+        const key = `${q.type}:${q.source}`;
+        if (!usedSources.has(key)) {
+          usedSources.add(key);
+          selected.push(q);
+        }
+      }
+      return { questions: selected.slice(0, desiredCount), flashcards: flashcards.slice(0, 20) };
+    }
+
+    async function generateWithGeminiAI(title, text, count, allowedTypes) {
+      const prompt = `Sen uzman bir öğretmensin. Kullanıcının yüklediği ders notundan ${count} adet sınav sorusu ve bilgi kartları (flashcards) üret.
+İzin verilen soru tipleri: ${allowedTypes.join(', ')}
+Sadece geçerli bir JSON objesi döndür:
+{
+  "questions": [
+    { "type": "mcq", "prompt": "Soru", "options": ["A","B","C","D"], "answer": "A", "explanation": "Açıklama", "source": "Kaynak cümle" }
+  ],
+  "flashcards": [
+    { "front": "Kavram", "back": "Açıklama" }
+  ]
+}
+BAŞLIK: ${title}
+NOT: ${text.slice(0, 14000)}`;
+
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${state.geminiModel}:generateContent?key=${encodeURIComponent(state.geminiKey)}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.4, responseMimeType: 'application/json' }
+        })
+      });
+      if (!response.ok) throw new Error('Gemini API Hatası. Yerel motoru seçebilir veya API anahtarınızı kontrol edebilirsiniz.');
+      const data = await response.json();
+      const rawJson = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+      return JSON.parse(rawJson.replace(/^```json\s*/i, '').replace(/```\s*$/, ''));
+    }
+
+    function findBestKeywordInSentence(sentence, stopWords) {
+      const tokens = sentence.match(/[A-ZÇĞİÖŞÜa-zçğıöşü0-9]{4,}/g) || [];
+      const candidates = tokens.filter((t, idx) => !stopWords.has(t.toLowerCase()) && (idx > 0 || t.length >= 6));
+      if (!candidates.length) return null;
+      candidates.sort((a, b) => b.length - a.length);
+      return candidates[0];
+    }
+
+    function maskTermInText(text, term) {
+      return text.replace(new RegExp(escapeRegExp(term), 'gi'), '_______');
+    }
+
+    function pickDistractors(correctTerm, pool, count) {
+      const unique = Array.from(new Set(pool)).filter(
+        (item) => item.toLowerCase() !== correctTerm.toLowerCase() && !correctTerm.toLowerCase().includes(item.toLowerCase())
+      );
+      const shuffled = shuffleArray(unique);
+      const fallbacks = ['Ribozom', 'Mitokondri', 'ATP', 'Enzim', 'Kloroplast', 'DNA', 'Homeostazi', 'Sentez'];
+      for (const fb of fallbacks) {
+        if (shuffled.length >= count) break;
+        if (!shuffled.includes(fb) && fb.toLowerCase() !== correctTerm.toLowerCase()) shuffled.push(fb);
+      }
+      return shuffled.slice(0, count);
+    }
+
+    function capitalizeWords(str) { return str.replace(/\b\w/g, (l) => l.toUpperCase()); }
+    function escapeRegExp(str) { return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function startQuizSession(title, rawText, questions, flashcards) {
+      state.activeQuiz = { title, rawText, questions, currentIndex: 0, correct: 0, wrong: 0, answeredMap: {} };
+      if (flashcards && flashcards.length > 0) {
+        state.flashcards = flashcards;
+        state.flashcardIndex = 0;
+        renderFlashcard();
+      }
+      const badge = document.getElementById('quizCountBadge');
+      badge.textContent = questions.length;
+      badge.classList.remove('hidden');
+      document.getElementById('quizEmptyState').classList.add('hidden');
+      document.getElementById('quizResultContainer').classList.add('hidden');
+      document.getElementById('quizActiveContainer').classList.remove('hidden');
+      renderCurrentQuestion();
+    }
+
+    function renderCurrentQuestion() {
+      const quiz = state.activeQuiz;
+      const q = quiz.questions[quiz.currentIndex];
+      if (!q) return;
+
+      document.getElementById('activeQuizTitle').textContent = quiz.title;
+      document.getElementById('questionProgressText').textContent = `Soru ${quiz.currentIndex + 1} / ${quiz.questions.length}`;
+      document.getElementById('liveCorrect').textContent = quiz.correct;
+      document.getElementById('liveWrong').textContent = quiz.wrong;
+      document.getElementById('quizProgressBar').style.width = `${((quiz.currentIndex + 1) / quiz.questions.length) * 100}%`;
+
+      const typeNames = { mcq: 'Çoktan Seçmeli Test', blank: 'Boşluk Doldurma', tf: 'Doğru / Yanlış', classic: 'Klasik Açık Uçlu Soru' };
+      document.getElementById('qTypeTag').textContent = typeNames[q.type] || 'Soru';
+      document.getElementById('questionPrompt').innerText = q.prompt;
+
+      const optionsContainer = document.getElementById('optionsContainer');
+      const textAnswerContainer = document.getElementById('textAnswerContainer');
+      const classicSelfEvalContainer = document.getElementById('classicSelfEvalContainer');
+      const feedbackBox = document.getElementById('feedbackBox');
+      const userTextAnswer = document.getElementById('userTextAnswer');
+      const hintBtn = document.getElementById('hintBtn');
+
+      optionsContainer.innerHTML = '';
+      feedbackBox.classList.add('hidden');
+      classicSelfEvalContainer.classList.add('hidden');
+      userTextAnswer.value = '';
+      userTextAnswer.disabled = false;
+
+      const prevRecord = quiz.answeredMap[quiz.currentIndex];
+
+      if (q.type === 'mcq' || q.type === 'tf') {
+        optionsContainer.classList.remove('hidden');
+        textAnswerContainer.classList.add('hidden');
+        const letters = ['A', 'B', 'C', 'D'];
+        q.options.forEach((opt, idx) => {
+          const btn = document.createElement('button');
+          btn.className = 'option-btn';
+          btn.innerHTML = `<span class="option-letter">${q.type === 'tf' ? (idx === 0 ? 'D' : 'Y') : letters[idx]}</span><span>${opt}</span>`;
+          if (prevRecord) {
+            btn.disabled = true;
+            if (opt === q.answer) btn.classList.add('correct');
+            else if (opt === prevRecord.userAnswer) btn.classList.add('wrong');
+          } else {
+            btn.addEventListener('click', () => submitChoiceAnswer(opt));
+          }
+          optionsContainer.appendChild(btn);
+        });
+      } else {
+        optionsContainer.classList.add('hidden');
+        textAnswerContainer.classList.remove('hidden');
+        hintBtn.classList.toggle('hidden', q.type === 'classic');
+        if (prevRecord) {
+          userTextAnswer.value = prevRecord.userAnswer;
+          userTextAnswer.disabled = true;
+        }
+      }
+
+      if (prevRecord) showQuestionFeedback(prevRecord.isCorrect, q);
+      document.getElementById('prevQuestionBtn').disabled = quiz.currentIndex === 0;
+      document.getElementById('nextQuestionBtn').textContent =
+        quiz.currentIndex === quiz.questions.length - 1 ? 'Sınavı Bitir ve Sonucu Gör 🏁' : 'Sonraki Soru →';
+    }
+
+    function submitChoiceAnswer(selectedOption) {
+      const quiz = state.activeQuiz;
+      const q = quiz.questions[quiz.currentIndex];
+      if (quiz.answeredMap[quiz.currentIndex]) return;
+      const isCorrect = normalizeTr(selectedOption) === normalizeTr(q.answer);
+      recordAnswer(isCorrect, selectedOption, q);
+      renderCurrentQuestion();
+    }
+
+    function submitTextAnswer() {
+      const quiz = state.activeQuiz;
+      const q = quiz.questions[quiz.currentIndex];
+      if (quiz.answeredMap[quiz.currentIndex]) return;
+      const userVal = document.getElementById('userTextAnswer').value.trim();
+      if (!userVal) { showToast('✏️ Lütfen önce cevabını yaz.'); return; }
+
+      if (q.type === 'classic') {
+        const feedbackBox = document.getElementById('feedbackBox');
+        feedbackBox.className = 'feedback-box';
+        document.getElementById('feedbackHeader').textContent = '📖 Notlardaki Doğru Cevap:';
+        document.getElementById('feedbackExplanation').textContent = q.answer;
+        document.getElementById('feedbackSource').textContent = `Kaynak Cümle: "${q.source}"`;
+        feedbackBox.classList.remove('hidden');
+        document.getElementById('classicSelfEvalContainer').classList.remove('hidden');
+        return;
+      }
+
+      const normUser = normalizeTr(userVal);
+      const normAns = normalizeTr(q.answer);
+      const isCorrect = normUser === normAns || (normUser.length >= 4 && normAns.startsWith(normUser)) || (normAns.length >= 4 && normUser.startsWith(normAns));
+      recordAnswer(isCorrect, userVal, q);
+      renderCurrentQuestion();
+    }
+
+    function recordAnswer(isCorrect, userAnswer, question) {
+      const quiz = state.activeQuiz;
+      quiz.answeredMap[quiz.currentIndex] = { isCorrect, userAnswer };
+      state.stats.solved += 1;
+      if (isCorrect) {
+        quiz.correct += 1;
+        state.stats.correct += 1;
+        state.stats.streak += 1;
+      } else {
+        quiz.wrong += 1;
+        state.stats.streak = 0;
+        addMistake(question);
+      }
+      saveStats();
+      updateStatsUI();
+    }
+
+    function showQuestionFeedback(isCorrect, q) {
+      const feedbackBox = document.getElementById('feedbackBox');
+      feedbackBox.className = `feedback-box ${isCorrect ? 'is-correct' : 'is-wrong'}`;
+      document.getElementById('feedbackHeader').textContent = isCorrect ? '✅ Harika! Doğru Cevap' : `❌ Yanlış! Doğru Cevap: ${q.answer}`;
+      document.getElementById('feedbackExplanation').textContent = q.explanation || '';
+      document.getElementById('feedbackSource').textContent = q.source ? `📌 Nottaki Kaynak: "${q.source}"` : '';
+      feedbackBox.classList.remove('hidden');
+    }
+
+    function bindQuizEvents() {
+      document.getElementById('submitTextAnswerBtn').addEventListener('click', submitTextAnswer);
+      document.getElementById('userTextAnswer').addEventListener('keydown', (e) => { if (e.key === 'Enter') submitTextAnswer(); });
+      document.getElementById('hintBtn').addEventListener('click', () => {
+        const q = state.activeQuiz.questions[state.activeQuiz.currentIndex];
+        if (!q) return;
+        const ans = q.answer.trim();
+        const hint = ans[0] + ans.slice(1).replace(/[A-ZÇĞİÖŞÜa-zçğıöşü0-9]/g, '•');
+        showToast(`💡 İpucu: ${hint} (${ans.length} harf)`);
+      });
+      document.getElementById('selfEvalCorrectBtn').addEventListener('click', () => {
+        const q = state.activeQuiz.questions[state.activeQuiz.currentIndex];
+        recordAnswer(true, document.getElementById('userTextAnswer').value.trim(), q);
+        renderCurrentQuestion();
+      });
+      document.getElementById('selfEvalWrongBtn').addEventListener('click', () => {
+        const q = state.activeQuiz.questions[state.activeQuiz.currentIndex];
+        recordAnswer(false, document.getElementById('userTextAnswer').value.trim(), q);
+        renderCurrentQuestion();
+      });
+      document.getElementById('prevQuestionBtn').addEventListener('click', () => {
+        if (state.activeQuiz.currentIndex > 0) { state.activeQuiz.currentIndex -= 1; renderCurrentQuestion(); }
+      });
+      document.getElementById('nextQuestionBtn').addEventListener('click', () => {
+        const quiz = state.activeQuiz;
+        if (quiz.currentIndex < quiz.questions.length - 1) { quiz.currentIndex += 1; renderCurrentQuestion(); }
+        else showQuizResults();
+      });
+      document.getElementById('retryWrongBtn').addEventListener('click', () => {
+        const wrongQuestions = state.activeQuiz.questions.filter((_, idx) => state.activeQuiz.answeredMap[idx]?.isCorrect === false);
+        if (!wrongQuestions.length) return;
+        startQuizSession(`${state.activeQuiz.title} (Yanlışlarım)`, state.activeQuiz.rawText, wrongQuestions, []);
+      });
+      document.getElementById('regenerateQuizBtn').addEventListener('click', () => {
+        noteTitleInput.value = state.activeQuiz.title;
+        noteContentInput.value = state.activeQuiz.rawText;
+        handleGenerateQuiz();
+      });
+    }
+
+    function showQuizResults() {
+      const quiz = state.activeQuiz;
+      document.getElementById('quizActiveContainer').classList.add('hidden');
+      document.getElementById('quizResultContainer').classList.remove('hidden');
+      const total = quiz.questions.length || 1;
+      const pct = Math.round((quiz.correct / total) * 100);
+      document.getElementById('resScorePercent').textContent = `%${pct}`;
+      document.getElementById('resCorrectCount').textContent = quiz.correct;
+      document.getElementById('resWrongCount').textContent = quiz.wrong;
+      document.getElementById('retryWrongBtn').classList.toggle('hidden', quiz.wrong === 0);
+    }
+
+    function normalizeTr(str) {
+      return (str || '').toLocaleLowerCase('tr-TR').replace(/[.,!?;:'"()]/g, '').trim();
+    }
+
+    function renderFlashcard() {
+      const empty = document.getElementById('flashcardEmptyState');
+      const container = document.getElementById('flashcardContainer');
+      if (!state.flashcards || !state.flashcards.length) {
+        empty.classList.remove('hidden'); container.classList.add('hidden'); return;
+      }
+      empty.classList.add('hidden'); container.classList.remove('hidden');
+      const card = state.flashcards[state.flashcardIndex];
+      document.getElementById('flashcardInner').classList.remove('is-flipped');
+      document.getElementById('flashcardCounter').textContent = `Kart ${state.flashcardIndex + 1} / ${state.flashcards.length}`;
+      document.getElementById('fcFrontText').textContent = card.front;
+      document.getElementById('fcBackText').textContent = card.back;
+    }
+
+    function bindFlashcardEvents() {
+      const flip = () => document.getElementById('flashcardInner').classList.toggle('is-flipped');
+      document.getElementById('flashcardScene').addEventListener('click', flip);
+      document.getElementById('fcFlipBtn').addEventListener('click', flip);
+      document.getElementById('fcPrevBtn').addEventListener('click', () => {
+        if (!state.flashcards.length) return;
+        state.flashcardIndex = (state.flashcardIndex - 1 + state.flashcards.length) % state.flashcards.length;
+        renderFlashcard();
+      });
+      document.getElementById('fcNextBtn').addEventListener('click', () => {
+        if (!state.flashcards.length) return;
+        state.flashcardIndex = (state.flashcardIndex + 1) % state.flashcards.length;
+        renderFlashcard();
+      });
+    }
+
+    function addMistake(question) {
+      if (!state.mistakes.some((m) => m.prompt === question.prompt)) {
+        state.mistakes.unshift(question);
+        localStorage.setItem('notquiz_mistakes', JSON.stringify(state.mistakes));
+        renderMistakes();
+      }
+    }
+
+    function renderMistakes() {
+      const list = document.getElementById('mistakesList');
+      const badge = document.getElementById('mistakeCountBadge');
+      if (state.mistakes.length > 0) { badge.textContent = state.mistakes.length; badge.classList.remove('hidden'); }
+      else badge.classList.add('hidden');
+
+      if (!state.mistakes.length) {
+        list.innerHTML = `<div class="empty-state"><div class="empty-icon">🎉</div><h3>Hiç Yanlış Sorun Yok</h3><p>Yanlış yaptığın sorular otomatik olarak buraya eklenir.</p></div>`;
+        return;
+      }
+      list.innerHTML = state.mistakes.map((m, idx) => `
+        <div class="mistake-item">
+          <h4>${idx + 1}. ${m.prompt}</h4>
+          <div class="mistake-ans">✓ Doğru Cevap: ${m.answer}</div>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('practiceAllMistakesBtn').addEventListener('click', () => {
+      if (!state.mistakes.length) { showToast('🎉 Çözülecek yanlış soru bulunmuyor.'); return; }
+      startQuizSession('Yanlış Yaptığım Sorular Tekrarı', '', [...state.mistakes], []);
+      switchTab('quiz');
+    });
+
+    document.getElementById('clearMistakesBtn').addEventListener('click', () => {
+      state.mistakes = [];
+      localStorage.setItem('notquiz_mistakes', '[]');
+      renderMistakes();
+      showToast('🗑️ Yanlış sorular listesi temizlendi.');
+    });
+
+    function saveNoteToLibrary(title, content) {
+      const existingIdx = state.library.findIndex((item) => item.title === title);
+      const entry = { id: Date.now(), title, content, wordCount: content.split(/\s+/).length, date: new Date().toLocaleDateString('tr-TR') };
+      if (existingIdx >= 0) state.library[existingIdx] = entry;
+      else state.library.unshift(entry);
+      localStorage.setItem('notquiz_library', JSON.stringify(state.library.slice(0, 30)));
+      renderLibrary();
+    }
+
+    function renderLibrary() {
+      const grid = document.getElementById('libraryGrid');
+      if (!state.library.length) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column: 1 / -1;"><div class="empty-icon">📚</div><h3>Henüz Kayıtlı Notun Yok</h3></div>`;
+        return;
+      }
+      grid.innerHTML = state.library.map((item, idx) => `
+        <div class="library-card">
+          <h4>📄 ${item.title}</h4>
+          <div class="library-meta">${item.wordCount} kelime • ${item.date}</div>
+          <div class="library-actions">
+            <button class="btn btn-primary" onclick="loadNoteFromLibrary(${idx})">🎯 Soru Üret</button>
+            <button class="btn btn-secondary" onclick="deleteNoteFromLibrary(${idx})">🗑️</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    window.loadNoteFromLibrary = function (idx) {
+      const item = state.library[idx];
+      if (!item) return;
+      noteTitleInput.value = item.title;
+      noteContentInput.value = item.content;
+      updateWordCount();
+      switchTab('upload');
+      showToast(`📄 "${item.title}" yüklendi!`);
+    };
+
+    window.deleteNoteFromLibrary = function (idx) {
+      state.library.splice(idx, 1);
+      localStorage.setItem('notquiz_library', JSON.stringify(state.library));
+      renderLibrary();
+    };
+
+    function saveStats() { localStorage.setItem('notquiz_stats', JSON.stringify(state.stats)); }
+    function updateStatsUI() {
+      document.getElementById('statSolved').textContent = state.stats.solved;
+      const acc = state.stats.solved > 0 ? Math.round((state.stats.correct / state.stats.solved) * 100) : 0;
+      document.getElementById('statAccuracy').textContent = `%${acc}`;
+      document.getElementById('statStreak').textContent = `${state.stats.streak}🔥`;
+    }
+
+    function updateEngineStatusUI() {
+      const el = document.getElementById('engineStatus');
+      el.innerHTML = state.geminiKey
+        ? `<span class="dot online"></span> Gemini AI + Yerel Motor Hazır`
+        : `<span class="dot online"></span> Yerel Akıllı Motor Aktif`;
+    }
+
+    function bindSettingsModal() {
+      const modal = document.getElementById('settingsModal');
+      const keyInput = document.getElementById('geminiApiKeyInput');
+      const modelSelect = document.getElementById('geminiModelSelect');
+      document.getElementById('openSettingsBtn').addEventListener('click', () => {
+        keyInput.value = state.geminiKey;
+        modelSelect.value = state.geminiModel;
+        modal.classList.remove('hidden');
+      });
+      document.getElementById('closeSettingsBtn').addEventListener('click', () => modal.classList.add('hidden'));
+      document.getElementById('saveSettingsBtn').addEventListener('click', () => {
+        state.geminiKey = keyInput.value.trim();
+        state.geminiModel = modelSelect.value;
+        localStorage.setItem('notquiz_gemini_key', state.geminiKey);
+        localStorage.setItem('notquiz_gemini_model', state.geminiModel);
+        updateEngineStatusUI();
+        modal.classList.add('hidden');
+        showToast('✅ Ayarlar kaydedildi!');
+      });
+      document.getElementById('clearApiKeyBtn').addEventListener('click', () => {
+        keyInput.value = '';
+        state.geminiKey = '';
+        localStorage.removeItem('notquiz_gemini_key');
+        updateEngineStatusUI();
+        showToast('🗑️ API anahtarı kaldırıldı.');
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>
